@@ -1,0 +1,2092 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ふたりの星座 — カップル相性診断</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1a1828;--border:rgba(255,255,255,0.22);
+  --gold:#e0b96a;--gold-light:#f5dc90;
+  --rose:#f5a8bc;--lavender:#b8b8ff;
+  --text:#ffffff;--text2:#d8d0f0;--muted:#a89ec0;
+  --card:rgba(40,35,65,0.92);
+}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;border-radius:50%;background:white;animation:twinkle var(--dur) infinite alternate;opacity:var(--op)}
+@keyframes twinkle{from{opacity:var(--op)}to{opacity:calc(var(--op)*0.15)}}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 15% 25%,rgba(100,55,130,0.1) 0%,transparent 70%),radial-gradient(ellipse 50% 70% at 85% 75%,rgba(55,75,140,0.08) 0%,transparent 70%);pointer-events:none;z-index:0}
+.container{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:40px 20px 80px}
+
+/* Header */
+.header{text-align:center;margin-bottom:40px;animation:fadeUp 1s ease both;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:36px 28px 32px;backdrop-filter:blur(12px)}
+.header-eyebrow{font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:.4em;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
+.header h1{font-family:'Cormorant Garamond',serif;font-size:clamp(40px,9vw,60px);font-weight:400;font-style:italic;line-height:1.1;background:linear-gradient(135deg,var(--gold-light),var(--rose),var(--lavender));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
+.header p{font-size:14px;color:var(--text2);font-weight:300;letter-spacing:.05em}
+
+/* Divider */
+.divider{display:flex;align-items:center;gap:16px;margin:28px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
+.divider-icon{color:var(--gold);font-size:16px}
+
+/* Person Cards */
+.person-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:20px;backdrop-filter:blur(12px);animation:fadeUp 1s ease both;transition:border-color .3s}
+.person-card:hover{border-color:rgba(255,255,255,.35)}
+.person-label{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+.person-dot{width:9px;height:9px;border-radius:50%}
+.p1 .person-dot{background:var(--rose);box-shadow:0 0 10px var(--rose)}
+.p2 .person-dot{background:var(--lavender);box-shadow:0 0 10px var(--lavender)}
+.person-label span{font-size:12px;letter-spacing:.2em;color:var(--text2);text-transform:uppercase;font-weight:500}
+label{display:block;font-size:11px;font-weight:500;color:var(--text2);letter-spacing:.2em;margin-bottom:8px;text-transform:uppercase}
+input[type="text"]{width:100%;background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Noto Sans JP',sans-serif;font-size:15px;outline:none;transition:border-color .3s,background .3s;margin-bottom:20px}
+input[type="text"]:focus{border-color:var(--gold);background:rgba(255,255,255,.12)}
+input[type="text"]::placeholder{color:rgba(255,255,255,.3)}
+
+/* Gender */
+.gender-row{display:flex;gap:10px;margin-bottom:20px}
+.gender-btn{flex:1;padding:10px 8px;border:1px solid rgba(255,255,255,.25);border-radius:10px;background:transparent;color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-size:13px;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:6px}
+.gender-btn:hover{border-color:rgba(255,255,255,.5);color:#fff}
+.gender-btn.active-m{background:rgba(120,160,255,.2);border-color:#88aaff;color:#c0d4ff}
+.gender-btn.active-f{background:rgba(245,168,188,.2);border-color:var(--rose);color:#ffcdd8}
+.gender-btn.active-o{background:rgba(184,184,255,.2);border-color:var(--lavender);color:var(--lavender)}
+.gender-icon{font-size:16px}
+
+/* MBTI */
+.mbti-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dimension{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:12px;padding:12px}
+.dimension-label{font-size:10px;font-weight:500;color:var(--text2);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;display:block}
+.toggle-group{display:flex;gap:6px}
+.toggle-btn{flex:1;padding:8px 4px;border:1px solid rgba(255,255,255,.25);border-radius:8px;background:transparent;color:var(--text2);font-family:'Cormorant Garamond',serif;font-size:18px;cursor:pointer;transition:all .25s}
+.toggle-btn:hover{border-color:rgba(255,255,255,.5);color:#fff;background:rgba(255,255,255,.06)}
+[data-person="1"] .toggle-btn.active{background:rgba(224,185,106,.25);border-color:var(--gold);color:var(--gold-light);box-shadow:0 0 14px rgba(224,185,106,.35)}
+[data-person="2"] .toggle-btn.active{background:rgba(184,184,255,.25);border-color:var(--lavender);color:var(--lavender);box-shadow:0 0 14px rgba(184,184,255,.35)}
+.mbti-display{text-align:center;margin-top:14px;font-family:'Cormorant Garamond',serif;font-size:30px;letter-spacing:.3em;color:var(--gold-light);min-height:38px;transition:all .3s}
+.p2 .mbti-display{color:var(--lavender)}
+
+/* Diagnose Button */
+.btn-diagnose{width:100%;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:20px;color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-size:14px;font-weight:400;letter-spacing:.15em;cursor:pointer;transition:all .3s;margin-top:8px;animation:fadeUp 1s .6s ease both;backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-diagnose:hover{border-color:rgba(255,255,255,.4);background:rgba(50,44,78,.95);color:#fff;transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,0,0,.3)}
+
+/* Result */
+.result{display:none;animation:fadeUp .8s ease both}
+.result.show{display:block}
+.result-header{text-align:center;padding:44px 28px 32px;background:var(--card);border:1px solid var(--border);border-radius:20px 20px 0 0;position:relative;overflow:hidden;backdrop-filter:blur(12px)}
+.result-header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 110%,rgba(224,185,106,.08) 0%,transparent 70%);pointer-events:none}
+.couple-types{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.type-badge{padding:8px 22px;border-radius:30px;font-family:'Cormorant Garamond',serif;font-size:24px;letter-spacing:.2em}
+.type-badge.rose{background:rgba(245,168,188,.18);border:1px solid rgba(245,168,188,.5);color:#ffcdd8}
+.type-badge.lav{background:rgba(184,184,255,.18);border:1px solid rgba(184,184,255,.5);color:#d0d0ff}
+.hearts{font-size:22px;transition:color .8s ease, text-shadow .8s ease}
+.score-ring{position:relative;width:150px;height:150px;margin:20px auto 16px}
+.score-ring svg{width:150px;height:150px;transform:rotate(-90deg)}
+.score-ring .track{fill:none;stroke:rgba(255,255,255,.15);stroke-width:7}
+.score-ring .fill{fill:none;stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1)}
+.score-number{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-number .num{font-family:'Cormorant Garamond',serif;font-size:48px;line-height:1;color:#fff}
+.score-number .pct{font-size:15px;color:var(--text2)}
+.result-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-style:italic;color:var(--gold-light);margin-bottom:10px}
+.result-subtitle{font-size:14px;color:var(--text2);font-weight:300;line-height:1.8;max-width:420px;margin:0 auto 0}
+.night-poem-title{color:#b8b4e8 !important}
+.night-poem{background:rgba(100,80,180,.08);border:1px solid rgba(184,180,232,.2);border-radius:14px;padding:20px 22px;font-size:14px;line-height:2;color:rgba(220,215,255,.75);font-style:italic;letter-spacing:.05em;text-align:center;margin-top:4px}
+.rank-comment{display:inline-block;margin:10px auto 0;padding:6px 18px;background:rgba(224,185,106,.12);border:1px solid rgba(224,185,106,.35);border-radius:20px;font-size:12px;color:var(--gold-light);letter-spacing:.08em;font-family:'Noto Sans JP',sans-serif}
+.fight-section{background:rgba(255,80,80,.04);border-radius:16px;margin:0 -24px;padding:22px 24px}
+.fight-title{color:#ff9a9a !important}
+.fight-cards{display:flex;flex-direction:column;gap:14px;margin-top:4px}
+.fight-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;overflow:hidden}
+.fight-card-header{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.fight-card-trigger{font-size:20px;flex-shrink:0}
+.fight-card-scene{font-size:13px;font-weight:500;color:var(--text1);flex:1;letter-spacing:.03em}
+.fight-card-arrow{font-size:12px;color:var(--text2);transition:transform .3s;flex-shrink:0}
+.fight-card.open .fight-card-arrow{transform:rotate(180deg)}
+.fight-card-body{display:none;padding:0 16px 16px;border-top:1px solid rgba(255,255,255,.07)}
+.fight-card.open .fight-card-body{display:block}
+.fight-label{font-size:10px;letter-spacing:.2em;color:var(--text2);margin-top:12px;margin-bottom:6px;font-weight:500}
+.fight-pattern{font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:8px}
+.makeup-tip{font-size:13px;color:#9de8a0;line-height:1.8;padding:10px 14px;background:rgba(100,200,100,.08);border-left:3px solid rgba(100,200,100,.5);border-radius:0 8px 8px 0}
+.share-rank-comment{font-size:11px;color:var(--text2);margin-top:6px;letter-spacing:.05em}
+
+/* ① Compatibility reasoning block */
+.compat-reason{margin:20px 0 0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:18px 20px;text-align:left}
+.compat-reason-label{font-size:10px;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.compat-reason-label::before{content:'✦';font-size:9px}
+.compat-reason-text{font-size:13px;color:var(--text2);line-height:1.85;font-weight:300}
+
+/* Tabs */
+.result-body{background:var(--card);border:1px solid var(--border);border-top:none;border-radius:0 0 20px 20px;overflow:hidden;backdrop-filter:blur(12px)}
+.tab-nav{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.tab-nav::-webkit-scrollbar{display:none}
+.tab-btn{flex:0 0 auto;padding:13px 14px;background:transparent;border:none;color:var(--muted);font-family:'Noto Sans JP',sans-serif;font-size:12px;cursor:pointer;transition:all .25s;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tab-btn.active{color:var(--gold-light);border-bottom-color:var(--gold);background:rgba(224,185,106,.05)}
+.tab-btn:hover:not(.active){color:var(--text2);background:rgba(255,255,255,.03)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.analysis-inner{padding:0 24px 28px}
+.section{padding:22px 0;border-top:1px solid rgba(255,255,255,.1)}
+.section-title{font-size:11px;letter-spacing:.28em;color:var(--gold);text-transform:uppercase;margin-bottom:16px;font-weight:500;display:flex;align-items:center;gap:10px}
+.section-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.1)}
+
+/* ② Tap-to-expand cards */
+.expand-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.expand-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:14px;cursor:pointer;overflow:hidden;transition:border-color .25s,box-shadow .25s;user-select:none}
+.expand-card:hover{border-color:rgba(224,185,106,.5);box-shadow:0 4px 20px rgba(224,185,106,.1)}
+.expand-card.open{border-color:rgba(224,185,106,.6);background:rgba(255,255,255,.09)}
+.expand-card-header{display:flex;align-items:center;gap:10px;padding:14px 14px 12px}
+.expand-icon{font-size:22px;flex-shrink:0}
+.expand-title{font-size:13px;color:#fff;font-weight:500;flex:1;line-height:1.3}
+.expand-arrow{font-size:11px;color:var(--muted);transition:transform .3s;flex-shrink:0}
+.expand-card.open .expand-arrow{transform:rotate(180deg);color:var(--gold)}
+.expand-body{max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(0.4,0,0.2,1)}
+.expand-card.open .expand-body{max-height:600px}
+.expand-body-inner{padding:0 14px 14px;font-size:12px;color:var(--text2);line-height:1.7;font-weight:300;border-top:1px solid rgba(255,255,255,.08)}
+.expand-body-inner p{padding-top:10px}
+
+.advice-list{list-style:none}
+.advice-list li{padding:11px 0 11px 22px;position:relative;font-size:13px;color:var(--text2);line-height:1.75;font-weight:300;border-bottom:1px solid rgba(255,255,255,.07)}
+.advice-list li::before{content:'✦';position:absolute;left:0;color:var(--gold);font-size:10px;top:13px}
+
+/* Chat */
+.chat-header{display:flex;align-items:center;gap:12px;padding:18px 24px;background:rgba(255,255,255,.04);border-bottom:1px solid var(--border)}
+.chat-header-icon{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,rgba(224,185,106,.5),rgba(245,168,188,.5));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.chat-header-text h3{font-size:15px;font-weight:500;color:#fff;margin-bottom:2px}
+.chat-header-text p{font-size:12px;color:var(--muted);font-weight:300}
+.chat-messages{height:360px;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+.chat-messages::-webkit-scrollbar{width:4px}
+.chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:4px}
+.msg{display:flex;gap:10px;max-width:88%;animation:fadeUp .4s ease both}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+.msg.ai{align-self:flex-start}
+.msg-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:2px}
+.msg.ai .msg-avatar{background:rgba(224,185,106,.2);border:1px solid rgba(224,185,106,.3)}
+.msg.user .msg-avatar{background:rgba(184,184,255,.2);border:1px solid rgba(184,184,255,.3)}
+.msg-bubble{padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.75;font-weight:300}
+.msg.ai .msg-bubble{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);color:var(--text2);border-radius:4px 16px 16px 16px}
+.msg.user .msg-bubble{background:rgba(184,184,255,.2);border:1px solid rgba(184,184,255,.28);color:#fff;border-radius:16px 4px 16px 16px}
+.typing-dots{display:flex;gap:5px;padding:14px 18px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:4px 16px 16px 16px;width:fit-content}
+.typing-dots span{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:bounce 1.2s infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.quick-qs{padding:12px 20px 16px;display:flex;flex-wrap:wrap;gap:8px;border-top:1px solid rgba(255,255,255,.08)}
+.quick-q-label{width:100%;font-size:11px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px}
+.quick-btn{padding:7px 13px;border-radius:20px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);color:var(--text2);font-size:12px;cursor:pointer;transition:all .25s;font-family:'Noto Sans JP',sans-serif}
+.quick-btn:hover{background:rgba(224,185,106,.15);border-color:var(--gold);color:var(--gold-light)}
+.chat-input-area{display:flex;gap:10px;padding:14px 20px;border-top:1px solid var(--border);background:rgba(255,255,255,.03)}
+.chat-input{flex:1;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:11px 16px;color:#fff;font-family:'Noto Sans JP',sans-serif;font-size:14px;outline:none;transition:border-color .3s;resize:none;height:44px;line-height:1.5}
+.chat-input:focus{border-color:var(--gold);background:rgba(255,255,255,.13)}
+.chat-input::placeholder{color:rgba(255,255,255,.35)}
+.send-btn{width:44px;height:44px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,rgba(224,185,106,.5),rgba(245,168,188,.4));border:1px solid var(--gold);color:var(--gold-light);font-size:18px;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center}
+.send-btn:hover{transform:scale(1.07)}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* Share */
+.share-section{text-align:center;margin-top:28px;padding:24px;background:var(--card);border:1px solid var(--border);border-radius:16px;backdrop-filter:blur(12px)}
+.share-section>p{font-size:13px;color:var(--text2);margin-bottom:16px;letter-spacing:.1em}
+.share-card{background:linear-gradient(145deg,#1a1535,#110f28);border:1px solid rgba(224,185,106,.4);border-radius:16px;padding:28px 24px 24px;margin-bottom:16px;position:relative;overflow:hidden}
+.share-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(224,185,106,.1) 0%,transparent 60%);pointer-events:none}
+.share-card-title{font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:.4em;color:var(--gold);text-transform:uppercase;margin-bottom:20px}
+.share-chars{display:flex;align-items:flex-end;justify-content:center;gap:8px;margin-bottom:16px}
+.char-wrap{display:flex;flex-direction:column;align-items:center;gap:6px}
+.char-name{font-size:11px;color:var(--muted);letter-spacing:.1em}
+.char-type-label{font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:.2em}
+.char-type-label.rose{color:#ffcdd8}
+.char-type-label.lav{color:#d0d0ff}
+.char-heart{font-size:28px;align-self:center;padding-bottom:30px;color:var(--rose)}
+.share-card-score-wrap{display:flex;flex-direction:column;align-items:center;gap:2px}
+.share-score-ring{position:relative;width:120px;height:120px;display:flex;align-items:center;justify-content:center}
+.share-score-ring svg{transform:rotate(-90deg)}
+.share-ring-track{fill:none;stroke:rgba(255,255,255,.15);stroke-width:7}
+.share-ring-fill{fill:none;stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1)}
+.share-score-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.share-card-score-label{font-size:10px;letter-spacing:.2em;color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-weight:500}
+.share-card-score{font-size:36px;font-family:'Cormorant Garamond',serif;background:linear-gradient(135deg,var(--gold-light),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1}
+.share-card-label{font-size:13px;color:var(--text2);margin-top:6px}
+.btn-retry{background:transparent;border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:12px 30px;color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-size:13px;cursor:pointer;transition:all .3s;margin-top:8px}
+.btn-retry:hover{border-color:rgba(255,255,255,.6);color:#fff}
+
+/* Score top3 */
+.score-top3{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0 4px}
+.s3-pill{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:500;letter-spacing:.05em;border:1px solid rgba(255,255,255,.2);color:var(--text2);display:flex;align-items:center;gap:6px}
+.s3-pill .s3-icon{font-size:13px}
+.s3-pill.plus{background:rgba(100,200,130,.15);border-color:rgba(100,200,130,.4);color:#90e0a8}
+.s3-pill.minus{background:rgba(220,120,100,.12);border-color:rgba(220,120,100,.35);color:#e8a898}
+.s3-pill.neutral{background:rgba(180,180,255,.12);border-color:rgba(180,180,255,.35);color:var(--lavender)}
+
+/* Onboarding hint */
+.onboarding-hint{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(224,185,106,.1);border-bottom:1px solid rgba(224,185,106,.25);font-size:12px;color:var(--text2);line-height:1.6}
+.onboarding-hint strong{color:var(--gold-light)}
+.ob-arrow{font-size:16px;color:var(--gold);flex-shrink:0;animation:bounce2 1.5s infinite}
+@keyframes bounce2{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+.ob-close{margin-left:auto;flex-shrink:0;background:transparent;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:2px 6px;border-radius:4px}
+.ob-close:hover{color:#fff}
+
+/* Share buttons */
+.share-btns{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.btn-share-img{width:100%;padding:14px;background:rgba(224,185,106,.18);border:1px solid rgba(224,185,106,.5);border-radius:12px;color:var(--gold-light);font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .3s;letter-spacing:.1em}
+.btn-share-img:hover{background:rgba(224,185,106,.3);transform:translateY(-1px);box-shadow:0 6px 20px rgba(224,185,106,.2)}
+.btn-share-img:disabled{opacity:.5;cursor:not-allowed;transform:none}
+/* モード選択 */
+.mode-wrap{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:22px 28px;margin-bottom:20px;backdrop-filter:blur(12px)}
+.mode-section-label{display:block;font-size:10px;font-weight:500;letter-spacing:.2em;color:var(--text2);margin-bottom:12px}
+.mode-toggle{display:flex;gap:8px}
+.mode-toggle .toggle-btn{font-family:'Noto Sans JP',sans-serif;font-size:13px;padding:10px 8px;letter-spacing:.05em}
+.mode-toggle .toggle-btn.active{background:rgba(224,185,106,.25);border-color:var(--gold);color:var(--gold-light);box-shadow:0 0 12px rgba(224,185,106,.2)}
+/* 告白タブ */
+.confess-card{background:rgba(255,255,255,.04);border:1px solid rgba(224,185,106,.2);border-radius:14px;padding:16px 18px;margin-top:4px}
+.confess-card+.confess-card{margin-top:10px}
+.confess-card-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.confess-card-icon{font-size:22px;flex-shrink:0}
+.confess-card-title{font-size:13px;font-weight:500;color:var(--text1)}
+.confess-card-body{font-size:13px;color:var(--text2);line-height:1.9}
+.confess-meter{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin:10px 0 4px}
+.confess-meter-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--rose));transition:width 1.2s ease}
+.confess-meter-label{font-size:10px;color:var(--muted);letter-spacing:.1em}
+.confess-highlight{font-size:13px;color:var(--gold-light);background:rgba(224,185,106,.1);border-left:3px solid rgba(224,185,106,.5);padding:10px 14px;border-radius:0 8px 8px 0;margin-top:8px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="container">
+  <div class="header">
+    <div class="header-eyebrow">16 Personalities × Couple</div>
+    <h1>ふたりの星座</h1>
+    <p>あなたたちの相性を、星が教えてくれる</p>
+  </div>
+
+  <div id="formSection">
+    <div class="mode-wrap">
+      <label class="mode-section-label">相性を知りたい相手</label>
+      <div class="toggle-group mode-toggle">
+        <button class="toggle-btn active" id="modeCouple" onclick="setMode('couple',this)">恋人</button>
+        <button class="toggle-btn" id="modeCrush" onclick="setMode('crush',this)">好きな人</button>
+      </div>
+    </div>
+    <div class="person-card p1" style="animation-delay:.1s">
+      <div class="person-label"><div class="person-dot"></div><span>あなた</span></div>
+      <label>ニックネーム</label>
+      <input type="text" id="name1" placeholder="例：さくら" maxlength="20">
+      <label>性別</label>
+      <div class="gender-row" id="gender1">
+        <button class="gender-btn" data-g="male" onclick="setGender(1,'male',this)"><span class="gender-icon">♂</span> 男性</button>
+        <button class="gender-btn active-f" data-g="female" onclick="setGender(1,'female',this)"><span class="gender-icon">♀</span> 女性</button>
+        <button class="gender-btn" data-g="other" onclick="setGender(1,'other',this)"><span class="gender-icon">✦</span> その他</button>
+      </div>
+      <label>MBTIタイプ</label>
+      <div class="mbti-grid">
+        <div class="dimension"><span class="dimension-label">エネルギー</span>
+          <div class="toggle-group" data-person="1" data-dim="0"><button class="toggle-btn active" data-val="E">E</button><button class="toggle-btn" data-val="I">I</button></div></div>
+        <div class="dimension"><span class="dimension-label">情報収集</span>
+          <div class="toggle-group" data-person="1" data-dim="1"><button class="toggle-btn active" data-val="N">N</button><button class="toggle-btn" data-val="S">S</button></div></div>
+        <div class="dimension"><span class="dimension-label">意思決定</span>
+          <div class="toggle-group" data-person="1" data-dim="2"><button class="toggle-btn active" data-val="F">F</button><button class="toggle-btn" data-val="T">T</button></div></div>
+        <div class="dimension"><span class="dimension-label">ライフスタイル</span>
+          <div class="toggle-group" data-person="1" data-dim="3"><button class="toggle-btn active" data-val="J">J</button><button class="toggle-btn" data-val="P">P</button></div></div>
+      </div>
+      <div class="mbti-display" id="type1">ENFJ</div>
+    </div>
+
+    <div class="divider"><span class="divider-icon">♡</span></div>
+
+    <div class="person-card p2" style="animation-delay:.25s">
+      <div class="person-label"><div class="person-dot"></div><span id="p2Label">相手</span></div>
+      <label>ニックネーム</label>
+      <input type="text" id="name2" placeholder="例：ゆうき" maxlength="20">
+      <label>性別</label>
+      <div class="gender-row" id="gender2">
+        <button class="gender-btn active-m" data-g="male" onclick="setGender(2,'male',this)"><span class="gender-icon">♂</span> 男性</button>
+        <button class="gender-btn" data-g="female" onclick="setGender(2,'female',this)"><span class="gender-icon">♀</span> 女性</button>
+        <button class="gender-btn" data-g="other" onclick="setGender(2,'other',this)"><span class="gender-icon">✦</span> その他</button>
+      </div>
+      <label>MBTIタイプ</label>
+      <div class="mbti-grid">
+        <div class="dimension"><span class="dimension-label">エネルギー</span>
+          <div class="toggle-group" data-person="2" data-dim="0"><button class="toggle-btn active" data-val="E">E</button><button class="toggle-btn" data-val="I">I</button></div></div>
+        <div class="dimension"><span class="dimension-label">情報収集</span>
+          <div class="toggle-group" data-person="2" data-dim="1"><button class="toggle-btn active" data-val="N">N</button><button class="toggle-btn" data-val="S">S</button></div></div>
+        <div class="dimension"><span class="dimension-label">意思決定</span>
+          <div class="toggle-group" data-person="2" data-dim="2"><button class="toggle-btn active" data-val="F">F</button><button class="toggle-btn" data-val="T">T</button></div></div>
+        <div class="dimension"><span class="dimension-label">ライフスタイル</span>
+          <div class="toggle-group" data-person="2" data-dim="3"><button class="toggle-btn active" data-val="J">J</button><button class="toggle-btn" data-val="P">P</button></div></div>
+      </div>
+      <div class="mbti-display" id="type2">ENFJ</div>
+    </div>
+    <button class="btn-diagnose" onclick="diagnose()"><span style="color:var(--gold);font-size:13px">✦</span> 相性を診断する <span style="color:var(--gold);font-size:13px">✦</span></button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="result-header">
+      <div class="couple-types">
+        <span class="type-badge rose" id="rType1"></span>
+        <span class="hearts" id="coupleHeart">♡</span>
+        <span class="type-badge lav" id="rType2"></span>
+      </div>
+      <div class="score-ring">
+        <svg viewBox="0 0 150 150">
+          <circle class="track" cx="75" cy="75" r="62"/>
+          <circle class="fill" id="scoreFill" cx="75" cy="75" r="62" stroke="url(#sg)" stroke-dasharray="389.6" stroke-dashoffset="389.6"/>
+          <defs><linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e0b96a"/><stop offset="100%" stop-color="#f5a8bc"/></linearGradient></defs>
+        </svg>
+        <div class="score-number"><span class="num" id="scoreNum">0</span><span class="pct">%</span></div>
+      </div>
+      <div class="result-title" id="resultTitle"></div>
+      <div class="result-subtitle" id="resultSubtitle"></div>
+      <div class="rank-comment" id="rankComment"></div>
+      <!-- score top3 -->
+      <div class="score-top3" id="scoreTop3"></div>
+      <!-- ① Reasoning block -->
+      <div class="compat-reason">
+        <div class="compat-reason-label">この相性スコアの理由</div>
+        <div class="compat-reason-text" id="compatReason"></div>
+      </div>
+    </div>
+
+    <div class="result-body">
+            <div class="tab-nav" id="tabNav">
+        <button class="tab-btn active" onclick="switchTab('analysis',this)">📊 相性分析</button>
+        <button class="tab-btn" onclick="switchTab('advice',this)">💡 攻略ガイド</button>
+        <button class="tab-btn" onclick="switchTab('date',this)">💑 デート</button>
+        <button class="tab-btn" onclick="switchTab('relation',this)">📅 関係の育て方</button>
+        <button class="tab-btn" onclick="switchTab('fight',this)">⚡ 喧嘩＆仲直り</button>
+        <button class="tab-btn tab-night-btn" id="tabNightBtn" onclick="switchTab('night',this)">🌙 夜の相性</button>
+        <button class="tab-btn tab-confess-btn" id="tabConfessBtn" style="display:none" onclick="switchTab('confess',this)">💌 告白作戦</button>
+        <button class="tab-btn" onclick="switchTab('chat',this)">💬 AI相談</button>
+      </div>
+
+      <div class="tab-content active" id="tab-analysis">
+        <div class="analysis-inner">
+          <div class="section"><div class="section-title">この組み合わせの特徴</div><div class="expand-grid" id="traitsGrid"></div></div>
+          <div class="section"><div class="section-title">喧嘩になりやすいシーン</div><div class="expand-grid" id="conflictGrid"></div></div>
+          <div class="section"><div class="section-title">2人を深めるヒント</div><div class="expand-grid" id="tipsGrid"></div></div>
+        </div>
+      </div>
+
+      <!-- ② advice tab -->
+      <div class="tab-content" id="tab-advice">
+        <div class="analysis-inner">
+          <div class="section"><div class="section-title">あなた（<span id="advMyType"></span>）から見た攻略ガイド</div><div class="expand-grid" id="adviceGrid"></div></div>
+          <div class="section"><div class="section-title">相手が喜ぶプレゼント</div><div class="expand-grid" id="giftsGrid"></div></div>
+          <div class="section"><div class="section-title">絶対NGな行為</div><div class="expand-grid" id="ngGrid"></div></div>
+          <div class="section"><div class="section-title">2人が仲良しでいるために</div><div class="expand-grid" id="togetherGrid"></div></div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-date">
+        <div class="analysis-inner">
+          <div class="section"><div class="section-title">オススメのデートスポット</div><div class="expand-grid" id="dateSpots"></div></div>
+          <div class="section"><div class="section-title">一緒に楽しめるアクティビティ</div><div class="expand-grid" id="dateActivities"></div></div>
+          <div class="section"><div class="section-title">この2人が輝くシーン</div><ul class="date-times" id="dateTimes"></ul></div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-relation">
+        <div class="analysis-inner">
+          <div class="section"><div class="section-title">付き合う前のアプローチ</div><div class="expand-grid" id="approachGrid"></div></div>
+          <div class="section"><div class="section-title">付き合い始め（〜3ヶ月）</div><div class="expand-grid" id="shortGrid"></div></div>
+          <div class="section"><div class="section-title">安定期（3ヶ月〜1年）</div><div class="expand-grid" id="midGrid"></div></div>
+          <div class="section"><div class="section-title">長期的な関係（1年以上）</div><div class="expand-grid" id="longGrid"></div></div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-fight">
+        <div class="analysis-inner">
+          <div class="section fight-section">
+            <div class="section-title fight-title">⚡ このペアの喧嘩パターン＆仲直り術</div>
+            <div class="fight-cards" id="fightGrid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-night">
+        <div class="analysis-inner">
+          <div class="section">
+            <div class="section-title">🌙 距離感スタイル</div>
+            <div class="expand-grid" id="nightStyleGrid"></div>
+          </div>
+          <div class="section">
+            <div class="section-title">🔥 感情表現の熱量</div>
+            <div class="expand-grid" id="nightHeatGrid"></div>
+          </div>
+          <div class="section">
+            <div class="section-title">✨ 親密さへのアプローチ</div>
+            <div class="expand-grid" id="nightApproachGrid"></div>
+          </div>
+          <div class="section">
+            <div class="section-title night-poem-title">💫 ふたりの夜に贈る言葉</div>
+            <div class="night-poem" id="nightPoem"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-confess">
+        <div class="analysis-inner">
+          <div class="section">
+            <div class="section-title confess-title">💘 脈アリ度診断</div>
+            <div id="confessSignals"></div>
+          </div>
+          <div class="section">
+            <div class="section-title confess-title">📅 告白のベストタイミング</div>
+            <div id="confessTiming"></div>
+          </div>
+          <div class="section">
+            <div class="section-title confess-title">💬 距離を縮めるLINEの送り方</div>
+            <div id="confessLine"></div>
+          </div>
+          <div class="section">
+            <div class="section-title confess-title">✨ 告白シナリオ</div>
+            <div id="confessScript"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-chat">
+        <div id="chatUnavailable" style="display:none;padding:40px 20px;text-align:center">
+          <div style="font-size:48px;margin-bottom:16px">🌙</div>
+          <div style="font-size:17px;color:#f5dc90;font-family:'Cormorant Garamond',serif;font-style:italic;margin-bottom:12px">AI相談は作成者のみ利用できます</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.9">このリンクから開いた場合、<br>AI相談チャット機能はご利用いただけません。<br><br>他のタブの診断・攻略ガイド・<br>関係アドバイスはすべてお使いいただけます。</div>
+        </div>
+        <div id="chatAvailable">
+          <div class="chat-header">
+            <div class="chat-header-icon">🌙</div>
+            <div class="chat-header-text"><h3>星読みAIカウンセラー</h3><p id="chatSubtitle">2人のタイプを踏まえてアドバイス</p></div>
+          </div>
+          <div class="chat-messages" id="chatMessages"></div>
+          <div class="quick-qs" id="quickQs"><span class="quick-q-label">よくある相談</span></div>
+          <div class="chat-input-area">
+            <textarea class="chat-input" id="chatInput" placeholder="相談を入力してください…" rows="1"
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+              oninput="this.style.height='44px';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()">↑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="share-section">
+      <p id="shareSectionTitle">✦ シェアして友だちに自慢しよう ✦</p>
+      <div class="share-card">
+        <div class="share-card-title">ふたりの星座</div>
+        <div class="share-chars">
+          <div class="char-wrap">
+            <svg id="charSvg1" width="110" height="150" viewBox="0 10 110 135"></svg>
+            <div class="char-type-label rose" id="shareType1"></div>
+            <div class="char-name" id="shareName1"></div>
+          </div>
+          <div class="char-heart">♡</div>
+          <div class="char-wrap">
+            <svg id="charSvg2" width="110" height="150" viewBox="0 10 110 135"></svg>
+            <div class="char-type-label lav" id="shareType2"></div>
+            <div class="char-name" id="shareName2"></div>
+          </div>
+        </div>
+        <div class="share-card-score-wrap">
+          <div class="share-score-ring">
+            <svg viewBox="0 0 150 150" width="120" height="120">
+              <circle class="share-ring-track" cx="75" cy="75" r="62"/>
+              <circle class="share-ring-fill" id="shareRingFill" cx="75" cy="75" r="62"
+                stroke="url(#shareGrad)" stroke-dasharray="389.6" stroke-dashoffset="389.6"/>
+              <defs>
+                <linearGradient id="shareGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#e0b96a"/>
+                  <stop offset="100%" stop-color="#f5a8bc"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="share-score-inner">
+              <div class="share-card-score-label">相性</div>
+              <div class="share-card-score" id="shareScore"></div>
+            </div>
+          </div>
+        </div>
+        <div class="share-card-label" id="shareTitle2"></div>
+        <div class="share-rank-comment" id="shareRankComment"></div>
+      </div>
+      <div class="share-btns">
+        <button class="btn-share-img" id="shareImgBtn" onclick="generateShareImage()">📤 シェア / 保存</button>
+        <button class="btn-retry" onclick="reset()">↩ もう一度診断する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// 公開環境かどうかを検出してチャットの表示を切り替える
+// グローバルフラグ: AI機能が使えるか
+let AI_AVAILABLE = false;
+
+async function detectChatAvailability() {
+  // hostnameでは判定できない（共有リンクも claude.ai）
+  // 実際にAPIへの疎通を試みて判定する
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1,
+        messages: [{ role: 'user', content: 'hi' }]
+      })
+    });
+    // 401/400でも通信できればOK（認証エラーはネットワーク到達済みの証拠）
+    AI_AVAILABLE = res.status !== 0;
+  } catch(e) {
+    // fetchが例外 = サンドボックスでブロックされている
+    AI_AVAILABLE = false;
+  }
+
+  if (!AI_AVAILABLE) {
+    const unavail = document.getElementById('chatUnavailable');
+    const avail = document.getElementById('chatAvailable');
+    if (unavail) unavail.style.display = 'block';
+    if (avail) avail.style.display = 'none';
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      if (btn.textContent.includes('AI相談')) btn.textContent = '🔒 AI相談';
+    });
+  }
+}
+document.addEventListener('DOMContentLoaded', () => detectChatAvailability());
+const state={p1:['E','N','F','J'],p2:['E','N','F','J']};
+const genders={p1:'female',p2:'male'};
+let currentNames={n1:'あなた',n2:'パートナー'};
+let chatHistory=[],isTyping=false;
+let appMode='couple'; // 'couple' | 'crush'
+
+function setMode(mode, btn){
+  appMode = mode;
+  document.getElementById('modeCouple').classList.remove('active');
+  document.getElementById('modeCrush').classList.remove('active');
+  btn.classList.add('active');
+  const p2label = document.getElementById('p2Label');
+  const n2ph = document.getElementById('name2');
+  if(mode === 'couple'){
+    if(p2label) p2label.textContent = '相手';
+    if(n2ph) n2ph.placeholder = '例：ゆうき';
+  } else {
+    if(p2label) p2label.textContent = '好きな人';
+    if(n2ph) n2ph.placeholder = '例：たくみ';
+  }
+}
+
+function setGender(person,g,btn){
+  genders[`p${person}`]=g;
+  document.getElementById(`gender${person}`).querySelectorAll('.gender-btn').forEach(b=>b.classList.remove('active-m','active-f','active-o'));
+  btn.classList.add(g==='male'?'active-m':g==='female'?'active-f':'active-o');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+// Stars
+const sc=document.getElementById('stars');
+for(let i=0;i<160;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.5+.5;s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--op:${Math.random()*.6+.15};--dur:${Math.random()*3+2}s;animation-delay:${Math.random()*5}s`;sc.appendChild(s)}
+
+document.querySelectorAll('.toggle-group').forEach(g=>{
+  const person=g.dataset.person,dim=parseInt(g.dataset.dim);
+  g.querySelectorAll('.toggle-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      g.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      state[`p${person}`][dim]=btn.dataset.val;
+      document.getElementById(`type${person}`).textContent=state[`p${person}`].join('');
+    });
+  });
+});
+}); // DOMContentLoaded
+
+// ② Expandable card builder
+function makeExpandCard(icon,title,detail){
+  const d=document.createElement('div');
+  d.className='expand-card';
+  d.innerHTML=`<div class="expand-card-header"><span class="expand-icon">${icon}</span><span class="expand-title">${title}</span><span class="expand-arrow">▼</span></div><div class="expand-body"><div class="expand-body-inner"><p>${detail}</p></div></div>`;
+  d.addEventListener('click',()=>d.classList.toggle('open'));
+  return d;
+}
+function renderExpandGrid(id,items){
+  const g=document.getElementById(id);g.innerHTML='';
+  items.forEach(it=>g.appendChild(makeExpandCard(it.icon||it.i||it.e,it.title||it.name||it.n,it.detail||it.reason||it.p||it.d||'')));
+}
+
+function getScore(t1,t2){
+  // ── 完全一致ペアテーブル（理論的ゴールデンペア含む全16×16相当）
+  const pairMap = {
+    'INFJ-ENFP':95,'ENFP-INFJ':95,
+    'INTJ-ENTP':93,'ENTP-INTJ':93,
+    'INFP-ENFJ':92,'ENFJ-INFP':92,
+    'INTP-ENTJ':90,'ENTJ-INTP':90,
+    'ISFJ-ESFP':88,'ESFP-ISFJ':88,
+    'ISTJ-ESTP':87,'ESTP-ISTJ':87,
+    'ISFP-ESFJ':86,'ESFJ-ISFP':86,
+    'ISTP-ESTJ':85,'ESTJ-ISTP':85,
+    'INFJ-INTJ':79,'INTJ-INFJ':79,
+    'INFJ-INFP':81,'INFP-INFJ':81,
+    'INFJ-ENFJ':77,'ENFJ-INFJ':77,
+    'ENFP-ENTP':76,'ENTP-ENFP':76,
+    'ENFP-INFP':74,'INFP-ENFP':74,
+    'ENFJ-ENTJ':74,'ENTJ-ENFJ':74,
+    'INFP-ISFP':72,'ISFP-INFP':72,
+    'ENTJ-ESTJ':71,'ESTJ-ENTJ':71,
+    'INTJ-INTP':78,'INTP-INTJ':78,
+    'ENFJ-ESFJ':75,'ESFJ-ENFJ':75,
+    'ISFJ-ISTJ':80,'ISTJ-ISFJ':80,
+    'ESFP-ESTP':73,'ESTP-ESFP':73,
+    'INFJ-ISFJ':76,'ISFJ-INFJ':76,
+    'ENTP-ENFP':76,'ENFP-ENTP':76,
+    'INTP-INFP':70,'INFP-INTP':70,
+    'ESTJ-ESFJ':72,'ESFJ-ESTJ':72,
+  };
+  const key = `${t1}-${t2}`;
+  if(pairMap[key]) return pairMap[key];
+  // フォールバック：軸一致数ベース
+  let m=0; for(let i=0;i<4;i++) if(t1[i]===t2[i]) m++;
+  const complementary = t1[0]!==t2[0] && t1[1]===t2[1] && t1[2]===t2[2];
+  return Math.min(94, Math.max(38, complementary ? 76+m*3 : 44+m*10));
+}
+
+// 全136ペア中の順位コメントを生成
+function getRankComment(score) {
+  // スコア帯ごとの順位（136ペア中）
+  let rank, total = 136;
+  if      (score >= 95) rank = 1;
+  else if (score >= 93) rank = 2;
+  else if (score >= 92) rank = 3;
+  else if (score >= 90) rank = 4;
+  else if (score >= 88) rank = 5;
+  else if (score >= 87) rank = 6;
+  else if (score >= 86) rank = 7;
+  else if (score >= 85) rank = 10;
+  else if (score >= 84) rank = 15;
+  else if (score >= 81) rank = 31;
+  else if (score >= 80) rank = 32;
+  else if (score >= 79) rank = 33;
+  else if (score >= 78) rank = 34;
+  else if (score >= 77) rank = 35;
+  else if (score >= 76) rank = 40;
+  else if (score >= 74) rank = 50;
+  else if (score >= 72) rank = 60;
+  else if (score >= 70) rank = 70;
+  else if (score >= 60) rank = 90;
+  else if (score >= 50) rank = 110;
+  else rank = 130;
+
+  const pct = Math.round((rank / total) * 100);
+
+  if (rank <= 5)  return { rank, total, text: `全${total}ペア中 上位${rank}位以内の相性✨`, label: 'TOP' + rank };
+  if (rank <= 15) return { rank, total, text: `全${total}ペア中 上位${rank}位以内の相性🌟`, label: 'TOP10%' };
+  if (rank <= 35) return { rank, total, text: `全${total}ペア中 上位${rank}位以内の相性⭐`, label: 'TOP25%' };
+  if (rank <= 70) return { rank, total, text: `全${total}ペア中 上位${rank}位以内の相性`, label: 'TOP50%' };
+  return { rank, total, text: `全${total}ペア中 ${rank}位前後の相性`, label: '' };
+}
+function getScoreTop3(t1, t2, score) {
+  const pills = [];
+  const both = c => t1.includes(c) && t2.includes(c);
+  const diff = c => t1.includes(c) !== t2.includes(c);
+
+  // ポジティブ要因
+  if(both('N')) pills.push({type:'plus', icon:'💡', text:'N同士の深い対話力'});
+  if(both('F')) pills.push({type:'plus', icon:'💝', text:'F同士の高い共感性'});
+  if(both('T')) pills.push({type:'plus', icon:'🔭', text:'T同士の論理的共鳴'});
+  if(both('J')) pills.push({type:'plus', icon:'🏡', text:'J同士の安定した将来設計'});
+  if(both('P')) pills.push({type:'plus', icon:'🌊', text:'P同士の自由な冒険心'});
+  if(t1[0]!==t2[0]) pills.push({type:'plus', icon:'⚡', text:'E×Iの静と動バランス'});
+  if(t1[1]!==t2[1] && t1[2]===t2[2]) pills.push({type:'plus', icon:'🔀', text:'N×Sの視点補完'});
+
+  // マイナス要因
+  if(diff('F') && !both('N')) pills.push({type:'minus', icon:'💬', text:'F×Tの感情/論理ズレ'});
+  if(diff('J') && !both('N')) pills.push({type:'minus', icon:'⏰', text:'J×Pの計画観の差'});
+  if(t1[1]!==t2[1] && t1[2]!==t2[2]) pills.push({type:'minus', icon:'🌀', text:'認知スタイルの大きな差'});
+
+  // スコア帯で補足
+  if(score>=90) pills.unshift({type:'plus', icon:'✨', text:'認知機能の黄金補完'});
+  else if(score<55) pills.push({type:'minus', icon:'⚠️', text:'4軸すべてで相違あり'});
+
+  // plus→neutral→minus でソート、最大3個
+  const order = {plus:0, neutral:1, minus:2};
+  pills.sort((a,b)=>order[a.type]-order[b.type]);
+  return pills.slice(0,3);
+}
+
+// ── ペア専用テキストデータ（主要ペア）
+const PAIR_DATA = {
+  'INFJ-ENFP': {
+    traits:[
+      {icon:'🌌',title:'魂が共鳴する稀有なペア',detail:'INFJの深い洞察力とENFPの豊かな想像力が出会うと、言葉を超えた精神的なつながりが生まれます。2人とも「意味」と「本質」を求める性質があるため、どんな話題も深化していきます。'},
+      {icon:'💫',title:'お互いの弱点を補い合う',detail:'INFJが計画・構造を、ENFPが可能性・熱意を持ち込みます。INFJはENFPに方向性を与え、ENFPはINFJの世界を広げます。認知機能（Ni-Fe vs Ne-Fi）が理想的に補い合います。'},
+      {icon:'🗣️',title:'深い会話が尽きない',detail:'2人とも表面的な話に飽き足りません。哲学・感情・未来・人生の意味…あらゆるテーマで何時間でも語り合えます。この「会話の深さ」こそがこのペアの核心です。'},
+      {icon:'🌸',title:'お互いを「本当に理解してくれる」と感じる',detail:'INFJもENFPも、普通の人間関係では「なかなか分かってもらえない」と感じがちです。だからこそ2人が出会ったとき、「この人は分かってくれる」という感覚が強烈に生まれます。'},
+    ],
+    conflicts:[
+      {icon:'🌀',title:'INFJの「必要な孤独」vs ENFPの「一緒にいたい」',detail:'INFJは定期的に一人の時間が不可欠。ENFPはもっと一緒にいたいと感じやすい。「一人でいたい」はINFJにとってリチャージであり拒絶ではないことを、ENFPは理解する必要があります。'},
+      {icon:'📋',title:'計画性のズレ',detail:'INFJは長期的な計画を立てたい（J）、ENFPは流れに任せたい（P）。旅行や将来の話し合いで温度差が出やすい。大枠はINFJに任せ、細部はENFPが担当するのが◎。'},
+      {icon:'💔',title:'ENFPの気まぐれにINFJが傷つくことも',detail:'ENFPは悪気なく熱量が変わることがあります。INFJは「嫌われたのかも」と深読みしてしまいがち。ENFPは変化を言葉で伝える習慣を、INFJは「これはENFPのスタイルだ」と知っておくことが重要。'},
+    ],
+    approach:[
+      {icon:'✨',title:'INFJのアプローチ法（→ENFPへ）',detail:'ENFPは可能性と熱意に惹かれます。「あなたのこういうところが面白い」と具体的に伝えること。ENFPの話すアイデアを否定せず、一緒に広げてあげる聞き手になりましょう。'},
+      {icon:'🎯',title:'ENFPのアプローチ法（→INFJへ）',detail:'INFJは深さと誠実さに惹かれます。浅い雑談より、「あなたはどう思う？」という深い質問を。INFJの洞察を「すごいね」と正直に称えること。急かさず、INFJのペースに合わせて。'},
+    ],
+  },
+  'INTJ-ENTP': {
+    traits:[
+      {icon:'🔭',title:'知的議論で高め合えるペア',detail:'INTJの戦略的思考とENTPの広大な知識量が合わさると、どんなテーマでも深い議論に発展します。2人とも知的な刺激を最上の喜びとするため、「一緒にいると賢くなれる」関係です。'},
+      {icon:'💡',title:'創造的なシナジー',detail:'INTJはビジョンと実行力、ENTPはアイデアと革新性を持ちます。INTJがENTPのアイデアに構造を与え、ENTPがINTJの計画に柔軟性を加えます。'},
+      {icon:'🏹',title:'互いの独立性を尊重できる',detail:'どちらも自立心が強く、相手に依存しすぎないスタンスが自然と合います。「一緒にいるが束縛しない」バランスがこのペアには心地よい。'},
+      {icon:'🌐',title:'世界観のスケールが合う',detail:'どちらも「大きな絵」を描くことが好きで、日常の小さなことより人生・社会・未来といったテーマで話が弾みます。'},
+    ],
+    conflicts:[
+      {icon:'⚡',title:'INTJの「決める」vs ENTPの「まだ考えたい」',detail:'INTJは計画を完結させたい（J）、ENTPは可能性を開き続けたい（P）。意思決定のタイミングで衝突しやすい。締め切りを明確に設けることで解消できます。'},
+      {icon:'🎭',title:'議論が白熱しすぎる',detail:'2人とも議論が大好きで引かない性質があります。「勝ち負け」ではなく「理解を深めるための対話」という共通認識を持つことが重要。'},
+      {icon:'🌡️',title:'感情的なやり取りが不得手',detail:'どちらもT（論理型）のため、感情面でのケアが手薄になりがちです。意識的に「感謝」「気遣い」を言語化することで関係温度を保てます。'},
+    ],
+    approach:[
+      {icon:'🔑',title:'INTJのアプローチ法（→ENTPへ）',detail:'ENTPは知的な遊び相手を求めています。あえて「それは本当に正しいの？」と議論を仕掛けてみましょう。ENTPは議論を楽しめる相手に特別な親近感を覚えます。'},
+      {icon:'🎯',title:'ENTPのアプローチ法（→INTJへ）',detail:'INTJは有能さと誠実さに惹かれます。自分のビジョンを具体的かつ論理的に語ること。約束は必ず守り、軽率な発言を避けることで信頼を積み上げましょう。'},
+    ],
+  },
+  'INFP-ENFJ': {
+    traits:[
+      {icon:'🌸',title:'感情的な深さで共鳴するペア',detail:'INFPの繊細な内面世界とENFJの温かい共感力が出会うと、「本当の自分を見せられる」という感覚が生まれます。どちらも人間の感情と価値観を大切にするF型です。'},
+      {icon:'💪',title:'ENFJがINFPを世界に連れ出す',detail:'内向きになりがちなINFPに、ENFJが社会とつながる機会をそっと提供します。INFPはENFJのサポートで殻を破り、ENFJはINFPの深い視点から多くを学びます。'},
+      {icon:'🎨',title:'創造性と人間理解が深まる',detail:'2人とも人間の本質に興味があり、文学・映画・音楽などの芸術的なものを通じて深いつながりを築けます。'},
+      {icon:'💝',title:'お互いを「特別な存在」と感じる',detail:'INFPもENFJも、真の意味で人の心を大切にする人間です。2人が出会うと「この人は本当に自分のことを見てくれている」という感覚が強く生まれます。'},
+    ],
+    conflicts:[
+      {icon:'🌀',title:'ENFJの「みんなのため」vs INFPの「自分の価値観」',detail:'ENFJは周りの期待に応えたい（Fe）、INFPは自分の内的価値観に忠実でいたい（Fi）。「周りに合わせてほしい」というENFJのプレッシャーにINFPが窒息感を感じることがあります。'},
+      {icon:'💬',title:'批判の受け取り方の違い',detail:'ENFJは建設的な意図で改善提案をしますが、INFPはそれを「否定された」と深く傷つくことがあります。ENFJは言い方を柔らかく、INFPは「愛情からの提案」と意識的に解釈する練習を。'},
+    ],
+    approach:[
+      {icon:'✨',title:'INFPのアプローチ法（→ENFJへ）',detail:'ENFJは「自分が誰かの役に立っている」と感じることが大好き。「あなたのこういうところが私を助けてくれた」と具体的に伝えましょう。ENFJの努力を見逃さずに言語化することが鍵です。'},
+      {icon:'🌱',title:'ENFJのアプローチ法（→INFPへ）',detail:'INFPは急かされることを嫌います。INFPが自分のペースで話し始めるまで待ち、じっくり聴くこと。INFPの夢や価値観を「素晴らしいね」と肯定し続ける忍耐が、最大の武器です。'},
+    ],
+  },
+};
+
+function getPairData(t1, t2) {
+  return PAIR_DATA[`${t1}-${t2}`] || PAIR_DATA[`${t2}-${t1}`] || null;
+}
+
+function getTitle(s){
+  if(s>=90)return['魂の片割れ','あなたたちは驚くほど深い部分で繋がっています。まるで宇宙が引き合わせたような、稀有な絆。'];
+  if(s>=80)return['星が輝く関係','お互いの良さを引き出し合える、理想的なパートナーシップ。2人でいると自然と成長できる。'];
+  if(s>=70)return['補い合う2つの星','違いがあるからこそ面白い。お互いが持っていないものを持ち寄れる、バランスの取れた関係。'];
+  if(s>=60)return['成長する軌跡','時に摩擦もあるけれど、それが2人を強くする。理解し合う努力が絆を深める。'];
+  return['挑戦的な引力','正反対な2人。大変なこともあるけれど、乗り越えた先には誰よりも深い絆が待っている。'];
+}
+
+// ① Compatibility reasoning generator
+function getReason(t1,t2,score){
+  const both=c=>t1.includes(c)&&t2.includes(c);
+  const diff=c=>t1.includes(c)!==t2.includes(c);
+  const parts=[];
+  if(both('N'))parts.push(`両者ともN（直感型）を持つため、抽象的なアイデアや未来の話題で深く共鳴できる土台があります`);
+  else if(diff('N'))parts.push(`N（直感型）とS（感覚型）の違いは、理想を語る人と現実を大切にする人の組み合わせ。視点の差が補い合いにもなれば、すれ違いの原因にもなります`);
+  if(both('F'))parts.push(`2人ともF（感情型）であるため、感情的な共感と温かさが関係の核になります。感情的なつながりを大切にし合える稀有な組み合わせです`);
+  else if(both('T'))parts.push(`2人ともT（思考型）のため、論理的な会話や問題解決において息が合います。感情表現は少なめでも、互いの合理性を尊重できます`);
+  else if(diff('F'))parts.push(`F（感情型）とT（思考型）の差は、「気持ち優先」と「論理優先」のズレを生みやすい一方、互いの弱点を補える関係にもなります`);
+  if(t1[0]!==t2[0])parts.push(`E（外向型）とI（内向型）の組み合わせは、静と動のバランスが取れており、お互いに刺激と安心を与え合えます`);
+  if(t1[3]!==t2[3])parts.push(`J（計画型）とP（知覚型）の違いは、段取りと柔軟性のギャップを生みやすいですが、うまく役割分担できると強力なチームになります`);
+  const n1=t1,n2=t2;
+  let text=parts.slice(0,3).join('。') + '。';
+  if(score>=85)text+= `認知機能の相互補完性が特に高く、${n1}の強みが${n2}の弱点をカバーし合う理想的なバランスです。`;
+  else if(score>=70)text+= `全体的に相性は良好ですが、いくつかの軸での違いを意識的に尊重し合うことで、さらに深い関係を築けます。`;
+  else text+= `違いが多い組み合わせですが、その分だけ互いから学べることも多く、成長につながる刺激的な関係といえます。`;
+  return text;
+}
+
+function getTraits(t1,t2){
+  const both=c=>t1.includes(c)&&t2.includes(c);const tr=[];
+  if(both('N'))tr.push({e:'🌙',n:'深い会話力',p:'2人とも未来や理想を語るのが得意。話題が尽きず、深い精神的な繋がりが生まれやすい。',reason:'N同士は抽象的・概念的な会話を自然と楽しめる認知スタイルを持っています。'});
+  if(both('F'))tr.push({e:'💝',n:'高い共感力',p:'感情を大切にし合え、相手の気持ちに寄り添える温かい関係。',reason:'F型は感情・価値観を意思決定の中心に置くため、お互いの気持ちを理解しやすいです。'});
+  if(both('T'))tr.push({e:'🔭',n:'論理的共鳴',p:'議論や問題解決で息が合い、互いを知的に高め合えるパートナー。',reason:'T同士は論理・客観性を重視するため、感情に左右されず建設的な対話ができます。'});
+  if(t1[0]!==t2[0])tr.push({e:'⚡',n:'静と動のバランス',p:'外向型と内向型の組み合わせ。刺激と安心を互いに与え合える。',reason:'E×Iの組み合わせは、社交的なエネルギーと内省的な深さが補い合います。'});
+  if(t1[3]!==t2[3])tr.push({e:'🎭',n:'計画×自由の妙',p:'計画派と自由派。違いが新鮮な刺激になり視野が広がる。',reason:'J×Pは段取り力と柔軟性が合わさり、強力なチームになれる組み合わせです。'});
+  if(both('J'))tr.push({e:'🏡',n:'将来設計力',p:'2人とも計画的で安定志向。一緒に未来を設計するのが得意。',reason:'J同士は目標や計画を共有しやすく、長期的な関係構築に向いています。'});
+  if(both('P'))tr.push({e:'🌊',n:'自由な冒険心',p:'流れに乗る2人。型にはまらない冒険と自由を共に楽しめる。',reason:'P同士はスポンテニアスな行動を楽しめ、変化を柔軟に受け入れられます。'});
+  while(tr.length<4)tr.push({e:'✨',n:'独自の化学反応',p:'この組み合わせならではの唯一無二の絆が生まれる。',reason:'MBTIの各軸が組み合わさることで、2人だけの特別な相互作用が生まれます。'});
+  return tr.slice(0,4).map(t=>({icon:t.e,title:t.n,detail:t.p+'<br><br>💡 '+t.reason}));
+}
+
+function getConflicts(t1,t2){
+  const arr=[];
+  if(t1[0]!==t2[0])arr.push({icon:'🏠',title:'休日の過ごし方',detail:'外に出たい vs 家でゆっくりしたい。<br><br>💡 外向型は外部刺激でエネルギーを補充し、内向型は一人の時間で回復します。お互いの「充電スタイル」を尊重し合いましょう。'});
+  if(t1[3]!==t2[3])arr.push({icon:'✈️',title:'旅行・計画の温度差',detail:'全部決めたい vs ノープランで行きたい。<br><br>💡 JとPでは「準備 = 安心感」の量が全く違います。担当を分けるか、大枠だけ決めて細部を自由にするのがコツ。'});
+  if(t1[2]!==t2[2])arr.push({icon:'💬',title:'仲直りの方法の違い',detail:'感情で話したい vs 論理的に整理したい。<br><br>💡 FとTでは喧嘩後のアプローチが真逆。Fは「共感」を、Tは「解決策」を求めます。まず相手のニーズに合わせて話しかけて。'});
+  if(t1[1]!==t2[1])arr.push({icon:'🔍',title:'こだわりポイントのズレ',detail:'全体像重視 vs 細部へのこだわり。<br><br>💡 NとSでは「何に注目するか」が違います。Nはビジョン、Sは具体的な事実を大切にします。互いの視点を「補完」として捉えましょう。'});
+  arr.push({icon:'📱',title:'連絡頻度の期待値ズレ',detail:'返信速度・連絡量への期待が合わないことが多い。<br><br>💡 特にE×I、J×Pで差が出やすいです。付き合い初めに「理想の連絡頻度」を正直に話し合っておくと◎。'});
+  return arr.slice(0,4);
+}
+
+function getTips(t1,t2){
+  return[
+    {icon:'📖',title:'タイプ特性を定期的に読み返す',detail:'月に1度、お互いのMBTI特性を一緒に読み返してみましょう。<br><br>💡 理解が深まることで「なぜこの人はこう動くのか」が腑に落ちるようになります。'},
+    {icon:'💌',title:'Iメッセージで気持ちを伝える',detail:'喧嘩後24時間以内に「私は〜と感じた」で気持ちを伝えましょう。<br><br>💡 「あなたが悪い」ではなく「私はこう感じた」という形にすると防衛反応が起きにくくなります。'},
+    {icon:'🎯',title:'得意分野を役割分担する',detail:`計画・段取りは${t1}、アドリブや柔軟対応は${t2}など、得意を活かした分担を。<br><br>💡 タイプの強みを活かした役割分担はストレスを大幅に減らします。`},
+    {icon:'🌙',title:'「充電の仕方」を尊重する',detail:'外向型はみんなで遊ぶことで、内向型は一人でいることでエネルギーが回復します。<br><br>💡 「一人でいたい」は拒絶ではなくリチャージ。この違いを理解するだけで関係が劇的に改善します。'}
+  ];
+}
+
+function getDateData(t1,t2){
+  const isN=t1.includes('N')||t2.includes('N'),isF=t1.includes('F')||t2.includes('F'),isE=t1.includes('E')||t2.includes('E'),isJ=t1.includes('J')||t2.includes('J'),bothN=t1.includes('N')&&t2.includes('N'),bothI=!t1.includes('E')&&!t2.includes('E');
+  const spots=[];
+  if(bothN)spots.push({i:'🏛️',n:'美術館・ギャラリー',d:'2人で深く語り合える作品に出会える場所。会話のきっかけが無限に生まれます。'},{i:'📚',n:'古書カフェ',d:'知的な会話が自然と生まれる隠れ家的空間。N同士の「意味を探す」本能が刺激されます。'});
+  if(bothI)spots.push({i:'🌿',n:'植物園・温室',d:'静かにゆっくり、2人だけの時間を過ごせる場所。I同士は人混みを避けた質の高い時間を好みます。'},{i:'♨️',n:'温泉旅館',d:'本音で話せる癒し空間。非日常の中で深いコミュニケーションが生まれます。'});
+  if(isE&&!bothI)spots.push({i:'🎡',n:'テーマパーク',d:'一緒にはしゃいで距離がぐっと縮まる。E型の活発なエネルギーが関係を生き生きとさせます。'},{i:'🌆',n:'夜景スポット',d:'テンションが上がる非日常の景色。感動を共有することで絆が深まります。'});
+  if(isF)spots.push({i:'🌸',n:'季節の自然スポット',d:'感情を共有しやすい、五感を刺激する場所。F型は感性的な体験から感情的つながりを深めます。'});
+  if(isJ)spots.push({i:'🍽️',n:'予約制の名店',d:'事前に調べて2人で楽しめる計画デート。J型は「準備する過程」自体もデートの喜びになります。'});
+  spots.push({i:'☕',n:'こだわりカフェ巡り',d:'2人の共通のお気に入りを見つけよう。'},{i:'🚂',n:'小旅行・ぶらり旅',d:'非日常が2人の新しい一面を引き出します。'});
+  const acts=[];
+  if(bothN)acts.push({i:'🧩',n:'謎解き・脱出ゲーム',d:'頭を使って協力するほど仲が深まる。N同士のパターン認識力が最大限に発揮されます。'},{i:'🎨',n:'ワークショップ体験',d:'新しいことを一緒に学ぶ刺激的な体験。N型は「未知への挑戦」にワクワクします。'});
+  if(isF)acts.push({i:'🍳',n:'料理教室',d:'一緒に作る喜びが幸福感を高める。F型は「誰かのために作る」行為そのものに喜びを感じます。'},{i:'🌿',n:'フラワーアレンジメント',d:'感性を刺激し合える創造的な時間。F型の美的センスと感情が開花します。'});
+  if(isE&&!bothI)acts.push({i:'🎤',n:'カラオケ',d:'お互いの意外な一面が見えて盛り上がる。E型のエネルギーが会場を盛り上げます。'},{i:'🏄',n:'アウトドアスポーツ',d:'一緒にドキドキすることで親密さがアップ。共同体験がEタイプの関係深化に効果的です。'});
+  if(bothI)acts.push({i:'🎮',n:'ボードゲームカフェ',d:'静かに競い合う中で笑いが生まれる。I同士が心地よいペースで楽しめる空間です。'},{i:'🎬',n:'映画鑑賞→感想シェア',d:'鑑賞後の語り合いが2人の絆を育む。I型は深い感想を言語化するのが得意です。'});
+  acts.push({i:'🚴',n:'サイクリング',d:'並走しながら自然と心が近づく。'},{i:'⭐',n:'星空観察',d:'2人だけの夜空タイムでロマンチックに。'});
+  const times=[];
+  if(isF)times.push('誕生日や記念日——感情を大切にするFタイプには特別な日が輝きやすい');
+  if(isN)times.push('夕暮れ〜夜——Nタイプは夜に深い話をしやすく、感性が豊かになる時間帯');
+  if(isE)times.push('週末の昼——エネルギーを外に向けたいEタイプには活動的な昼デートが◎');
+  if(bothI)times.push('平日の午後——人が少ない時間帯の方がリラックスして本音で話せる');
+  times.push('何気ない日常の中のプチデート——特別じゃない瞬間に愛着が育まれる');
+  return{spots:spots.slice(0,4),acts:acts.slice(0,4),times:times.slice(0,3)};
+}
+
+// ③ 16 MBTI abstract symbol marks — one unique geometric design per type
+// gender is still accepted for API compatibility but symbols are type-based only
+
+const MBTI_COLORS = {
+  INFJ:'#9b6bbf', INFP:'#c478b0', ENFJ:'#e07090', ENFP:'#e89050',
+  INTJ:'#5878c0', INTP:'#4898b8', ENTJ:'#3870a8', ENTP:'#38a898',
+  ISFJ:'#d4a040', ISFP:'#c8604c', ESFJ:'#d45868', ESFP:'#c87830',
+  ISTJ:'#607890', ISTP:'#508068', ESTJ:'#4a6878', ESTP:'#5a8050',
+};
+
+function getCharColors(type){ return {main: MBTI_COLORS[type]||'#8888aa'}; }
+
+// Helper: glow filter def
+function _glowDef(id, color) {
+  return `<defs><filter id="${id}" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur stdDeviation="4" result="blur"/>
+    <feFlood flood-color="${color}" flood-opacity="0.5" result="color"/>
+    <feComposite in="color" in2="blur" operator="in" result="glow"/>
+    <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter></defs>`;
+}
+
+// One symbol per type — all drawn in 110x170 viewBox, centred around cx=55, cy=85
+const MBTI_SYMBOLS = {
+
+  // ── ANALYSTS ──
+
+  INTJ: (c) => `
+    <!-- INTJ: Architect — precise angular crown geometry -->
+    ${_glowDef('gINTJ', c)}
+    <g filter="url(#gINTJ)">
+      <polygon points="55,18 82,52 75,90 55,105 35,90 28,52" fill="none" stroke="${c}" stroke-width="2.5"/>
+      <polygon points="55,32 72,56 67,82 55,92 43,82 38,56" fill="${c}" opacity=".15"/>
+      <line x1="55" y1="18" x2="55" y2="105" stroke="${c}" stroke-width="1.2" opacity=".5"/>
+      <line x1="28" y1="52" x2="82" y2="52" stroke="${c}" stroke-width="1.2" opacity=".5"/>
+      <line x1="35" y1="90" x2="75" y2="90" stroke="${c}" stroke-width="1.2" opacity=".5"/>
+      <circle cx="55" cy="18" r="5" fill="${c}"/>
+      <circle cx="82" cy="52" r="4" fill="${c}" opacity=".7"/>
+      <circle cx="28" cy="52" r="4" fill="${c}" opacity=".7"/>
+      <circle cx="75" cy="90" r="4" fill="${c}" opacity=".7"/>
+      <circle cx="35" cy="90" r="4" fill="${c}" opacity=".7"/>
+      <circle cx="55" cy="105" r="5" fill="${c}"/>
+      <circle cx="55" cy="62" r="10" fill="${c}" opacity=".25"/>
+      <circle cx="55" cy="62" r="4.5" fill="${c}"/>
+    </g>
+    <text x="55" y="135" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="13" fill="${c}" opacity=".9" letter-spacing="2">INTJ</text>`,
+
+  INTP: (c) => `
+    <!-- INTP: Logician — nested concentric rings with axis lines -->
+    ${_glowDef('gINTP', c)}
+    <g filter="url(#gINTP)">
+      <circle cx="55" cy="72" r="50" fill="none" stroke="${c}" stroke-width="1.5" opacity=".3"/>
+      <circle cx="55" cy="72" r="36" fill="none" stroke="${c}" stroke-width="2" opacity=".5"/>
+      <circle cx="55" cy="72" r="22" fill="none" stroke="${c}" stroke-width="2.5" opacity=".7"/>
+      <circle cx="55" cy="72" r="8" fill="${c}" opacity=".9"/>
+      <line x1="5" y1="72" x2="105" y2="72" stroke="${c}" stroke-width="1" opacity=".4"/>
+      <line x1="55" y1="22" x2="55" y2="122" stroke="${c}" stroke-width="1" opacity=".4"/>
+      <line x1="19" y1="36" x2="91" y2="108" stroke="${c}" stroke-width="1" opacity=".25"/>
+      <line x1="91" y1="36" x2="19" y2="108" stroke="${c}" stroke-width="1" opacity=".25"/>
+    </g>
+    <text x="55" y="138" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="13" fill="${c}" opacity=".9" letter-spacing="2">INTP</text>`,
+
+  ENTJ: (c) => `
+    <!-- ENTJ: Commander — bold upward arrow / chevron stack -->
+    ${_glowDef('gENTJ', c)}
+    <g filter="url(#gENTJ)">
+      <polygon points="55,15 90,55 72,55 72,105 38,105 38,55 20,55" fill="${c}" opacity=".85"/>
+      <polygon points="55,28 80,58 66,58 66,98 44,98 44,58 30,58" fill="${c}" opacity=".3"/>
+      <line x1="55" y1="15" x2="55" y2="105" stroke="white" stroke-width="1.5" opacity=".25"/>
+    </g>
+    <text x="55" y="130" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="13" fill="${c}" opacity=".9" letter-spacing="2">ENTJ</text>`,
+
+  ENTP: (c) => `
+    <!-- ENTP: Debater — dynamic interlocked spirals / double helix dots -->
+    ${_glowDef('gENTP', c)}
+    <g filter="url(#gENTP)">
+      <path d="M55,22 C80,32 80,52 55,62 C30,72 30,92 55,102" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round"/>
+      <path d="M55,22 C30,32 30,52 55,62 C80,72 80,92 55,102" fill="none" stroke="${c}" stroke-width="1.8" stroke-linecap="round" opacity=".4"/>
+      <circle cx="55" cy="22" r="6" fill="${c}"/>
+      <circle cx="55" cy="42" r="4.5" fill="${c}" opacity=".7"/>
+      <circle cx="55" cy="62" r="7" fill="${c}" opacity=".9"/>
+      <circle cx="55" cy="82" r="4.5" fill="${c}" opacity=".7"/>
+      <circle cx="55" cy="102" r="6" fill="${c}"/>
+    </g>
+    <text x="55" y="128" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="13" fill="${c}" opacity=".9" letter-spacing="2">ENTP</text>`,
+
+  // ── DIPLOMATS ──
+
+  INFJ: (c) => `
+    <!-- INFJ: Advocate — eye of providence / mystic eye in triangle -->
+    ${_glowDef('gINFJ', c)}
+    <g filter="url(#gINFJ)">
+      <polygon points="55,15 98,95 12,95" fill="none" stroke="${c}" stroke-width="2.5"/>
+      <polygon points="55,28 85,88 25,88" fill="${c}" opacity=".1"/>
+      <ellipse cx="55" cy="68" rx="22" ry="14" fill="none" stroke="${c}" stroke-width="2"/>
+      <ellipse cx="55" cy="68" rx="11" ry="7" fill="${c}" opacity=".3"/>
+      <circle cx="55" cy="68" r="6" fill="${c}"/>
+      <line x1="55" y1="15" x2="55" y2="55" stroke="${c}" stroke-width="1" opacity=".5"/>
+      <line x1="55" y1="81" x2="55" y2="95" stroke="${c}" stroke-width="1" opacity=".5"/>
+    </g>
+    <text x="55" y="120" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="13" fill="${c}" opacity=".9" letter-spacing="2">INFJ</text>`,
+
+  INFP: (c) => `
+    <!-- INFP: Mediator — blooming flower / open lotus -->
+    ${_glowDef('gINFP', c)}
+    <g filter="url(#gINFP)">
+      <ellipse cx="55" cy="58" rx="12" ry="22" fill="${c}" opacity=".25" transform="rotate(0,55,58)"/>
+      <ellipse cx="55" cy="58" rx="12" ry="22" fill="${c}" opacity=".2" transform="rotate(45,55,58)"/>
+      <ellipse cx="55" cy="58" rx="12" ry="22" fill="${c}" opacity=".2" transform="rotate(90,55,58)"/>
+      <ellipse cx="55" cy="58" rx="12" ry="22" fill="${c}" opacity=".2" transform="rotate(135,55,58)"/>
+      <ellipse cx="55" cy="58" rx="12" ry="22" fill="none" stroke="${c}" stroke-width="1.5" opacity=".6" transform="rotate(0,55,58)"/>
+      <ellipse cx="55" cy="58" rx="12" ry="22" fill="none" stroke="${c}" stroke-width="1.5" opacity=".6" transform="rotate(60,55,58)"/>
+      <ellipse cx="55" cy="58" rx="12" ry="22" fill="none" stroke="${c}" stroke-width="1.5" opacity=".6" transform="rotate(120,55,58)"/>
+      <circle cx="55" cy="58" r="10" fill="${c}" opacity=".9"/>
+      <circle cx="55" cy="58" r="5" fill="white" opacity=".35"/>
+      <line x1="55" y1="80" x2="55" y2="108" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    <text x="55" y="130" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="13" fill="${c}" opacity=".9" letter-spacing="2">INFP</text>`,
+
+  ENFJ: (c) => `
+    <!-- ENFJ: Protagonist — radiant sun with strong core -->
+    ${_glowDef('gENFJ', c)}
+    <g filter="url(#gENFJ)">
+      ${[0,30,60,90,120,150,180,210,240,270,300,330].map(a=>{
+        const r=a*Math.PI/180, x1=55+28*Math.sin(r), y1=62-28*Math.cos(r), x2=55+44*Math.sin(r), y2=62-44*Math.cos(r);
+        return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${c}" stroke-width="${a%60===0?2.5:1.5}" opacity="${a%60===0?1:.6}"/>`;
+      }).join('')}
+      <circle cx="55" cy="62" r="26" fill="${c}" opacity=".15"/>
+      <circle cx="55" cy="62" r="20" fill="${c}" opacity=".3"/>
+      <circle cx="55" cy="62" r="13" fill="${c}" opacity=".9"/>
+      <circle cx="55" cy="62" r="6" fill="white" opacity=".4"/>
+    </g>
+    <text x="55" y="125" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="13" fill="${c}" opacity=".9" letter-spacing="2">ENFJ</text>`,
+
+  ENFP: (c) => `
+    <!-- ENFP: Campaigner — burst of scattered stars / comet trail -->
+    ${_glowDef('gENFP', c)}
+    <g filter="url(#gENFP)">
+      <circle cx="55" cy="60" r="14" fill="${c}" opacity=".9"/>
+      <circle cx="55" cy="60" r="8" fill="white" opacity=".3"/>
+      ${[[22,28,9],[82,30,7],[88,72,8],[68,95,6],[28,88,7],[12,55,6],[40,20,5],[72,18,8],[95,45,5]].map(([x,y,r])=>
+        `<circle cx="${x}" cy="${y}" r="${r}" fill="${c}" opacity="${(r/10+0.3).toFixed(2)}"/>`
+      ).join('')}
+      ${[[55,60,22,28,9],[55,60,82,30,7],[55,60,28,88,7]].map(([cx,cy,x2,y2])=>
+        `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="1.2" opacity=".35"/>`
+      ).join('')}
+    </g>
+    <text x="55" y="125" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="13" fill="${c}" opacity=".9" letter-spacing="2">ENFP</text>`,
+
+  // ── SENTINELS ──
+
+  ISTJ: (c) => `
+    <!-- ISTJ: Logistician — precise grid / blueprint cross -->
+    ${_glowDef('gISTJ', c)}
+    <g filter="url(#gISTJ)">
+      <rect x="20" y="25" width="70" height="80" fill="none" stroke="${c}" stroke-width="2"/>
+      <rect x="20" y="25" width="70" height="80" fill="${c}" opacity=".06"/>
+      <line x1="20" y1="48" x2="90" y2="48" stroke="${c}" stroke-width="1.2" opacity=".7"/>
+      <line x1="20" y1="65" x2="90" y2="65" stroke="${c}" stroke-width="2" opacity=".9"/>
+      <line x1="20" y1="82" x2="90" y2="82" stroke="${c}" stroke-width="1.2" opacity=".7"/>
+      <line x1="43" y1="25" x2="43" y2="105" stroke="${c}" stroke-width="1.2" opacity=".7"/>
+      <line x1="55" y1="25" x2="55" y2="105" stroke="${c}" stroke-width="2" opacity=".9"/>
+      <line x1="67" y1="25" x2="67" y2="105" stroke="${c}" stroke-width="1.2" opacity=".7"/>
+      <rect x="49" y="59" width="12" height="12" fill="${c}" opacity=".9"/>
+    </g>
+    <text x="55" y="128" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="13" fill="${c}" opacity=".9" letter-spacing="2">ISTJ</text>`,
+
+  ISFJ: (c) => `
+    <!-- ISFJ: Defender — shield with heart inset -->
+    ${_glowDef('gISFJ', c)}
+    <g filter="url(#gISFJ)">
+      <path d="M55,18 L88,32 L88,72 Q88,105 55,118 Q22,105 22,72 L22,32 Z" fill="${c}" opacity=".2" stroke="${c}" stroke-width="2.5"/>
+      <path d="M55,30 L78,41 L78,70 Q78,96 55,107 Q32,96 32,70 L32,41 Z" fill="${c}" opacity=".15"/>
+      <path d="M46,58 Q46,48 55,53 Q64,48 64,58 Q64,68 55,76 Q46,68 46,58Z" fill="${c}" opacity=".9"/>
+    </g>
+    <text x="55" y="135" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="13" fill="${c}" opacity=".9" letter-spacing="2">ISFJ</text>`,
+
+  ESTJ: (c) => `
+    <!-- ESTJ: Executive — bold hexagon with inner structure -->
+    ${_glowDef('gESTJ', c)}
+    <g filter="url(#gESTJ)">
+      <polygon points="55,18 88,37 88,75 55,94 22,75 22,37" fill="none" stroke="${c}" stroke-width="3"/>
+      <polygon points="55,18 88,37 88,75 55,94 22,75 22,37" fill="${c}" opacity=".12"/>
+      <polygon points="55,34 74,45 74,67 55,78 36,67 36,45" fill="${c}" opacity=".25"/>
+      <polygon points="55,46 66,52 66,64 55,70 44,64 44,52" fill="${c}" opacity=".7"/>
+      <circle cx="55" cy="58" r="5" fill="${c}"/>
+    </g>
+    <text x="55" y="118" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="13" fill="${c}" opacity=".9" letter-spacing="2">ESTJ</text>`,
+
+  ESFJ: (c) => `
+    <!-- ESFJ: Consul — interlocked rings / community circles -->
+    ${_glowDef('gESFJ', c)}
+    <g filter="url(#gESFJ)">
+      <circle cx="35" cy="52" r="22" fill="none" stroke="${c}" stroke-width="2.5"/>
+      <circle cx="75" cy="52" r="22" fill="none" stroke="${c}" stroke-width="2.5"/>
+      <circle cx="55" cy="84" r="22" fill="none" stroke="${c}" stroke-width="2.5"/>
+      <circle cx="35" cy="52" r="22" fill="${c}" opacity=".1"/>
+      <circle cx="75" cy="52" r="22" fill="${c}" opacity=".1"/>
+      <circle cx="55" cy="84" r="22" fill="${c}" opacity=".1"/>
+      <circle cx="55" cy="62" r="8" fill="${c}" opacity=".7"/>
+    </g>
+    <text x="55" y="125" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="13" fill="${c}" opacity=".9" letter-spacing="2">ESFJ</text>`,
+
+  // ── EXPLORERS ──
+
+  ISTP: (c) => `
+    <!-- ISTP: Virtuoso — mechanical cog / gear -->
+    ${_glowDef('gISTP', c)}
+    <g filter="url(#gISTP)">
+      ${Array.from({length:8},(_,i)=>{
+        const a=i*45*Math.PI/180, oi=a+0.3, a2=a+22.5*Math.PI/180, oi2=a2+0.3;
+        const x1=(55+30*Math.cos(a)).toFixed(1), y1=(62+30*Math.sin(a)).toFixed(1);
+        const x2=(55+42*Math.cos(a)).toFixed(1), y2=(62+42*Math.sin(a)).toFixed(1);
+        const x3=(55+42*Math.cos(oi)).toFixed(1), y3=(62+42*Math.sin(oi)).toFixed(1);
+        const x4=(55+30*Math.cos(a2)).toFixed(1), y4=(62+30*Math.sin(a2)).toFixed(1);
+        return `<path d="M${x1},${y1} L${x2},${y2} L${x3},${y3} L${x4},${y4} Z" fill="${c}" opacity=".75"/>`;
+      }).join('')}
+      <circle cx="55" cy="62" r="28" fill="none" stroke="${c}" stroke-width="1.5" opacity=".4"/>
+      <circle cx="55" cy="62" r="18" fill="${c}" opacity=".2"/>
+      <circle cx="55" cy="62" r="10" fill="${c}" opacity=".9"/>
+      <circle cx="55" cy="62" r="4" fill="white" opacity=".4"/>
+    </g>
+    <text x="55" y="122" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="13" fill="${c}" opacity=".9" letter-spacing="2">ISTP</text>`,
+
+  ISFP: (c) => `
+    <!-- ISFP: Adventurer — flowing abstract watercolour diamond -->
+    ${_glowDef('gISFP', c)}
+    <g filter="url(#gISFP)">
+      <polygon points="55,18 92,62 55,106 18,62" fill="${c}" opacity=".2" stroke="${c}" stroke-width="2"/>
+      <polygon points="55,30 80,62 55,94 30,62" fill="${c}" opacity=".3"/>
+      <polygon points="55,44 70,62 55,80 40,62" fill="${c}" opacity=".6"/>
+      <circle cx="55" cy="62" r="7" fill="${c}"/>
+      <circle cx="55" cy="18" r="4" fill="${c}" opacity=".6"/>
+      <circle cx="92" cy="62" r="4" fill="${c}" opacity=".6"/>
+      <circle cx="55" cy="106" r="4" fill="${c}" opacity=".6"/>
+      <circle cx="18" cy="62" r="4" fill="${c}" opacity=".6"/>
+    </g>
+    <text x="55" y="128" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="13" fill="${c}" opacity=".9" letter-spacing="2">ISFP</text>`,
+
+  ESTP: (c) => `
+    <!-- ESTP: Entrepreneur — lightning bolt / action arrow -->
+    ${_glowDef('gESTP', c)}
+    <g filter="url(#gESTP)">
+      <polygon points="65,15 35,65 58,65 45,115 80,55 57,55" fill="${c}" opacity=".85"/>
+      <polygon points="65,15 35,65 58,65 45,115 80,55 57,55" fill="${c}" opacity=".2" transform="translate(3,3)"/>
+    </g>
+    <text x="55" y="135" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="13" fill="${c}" opacity=".9" letter-spacing="2">ESTP</text>`,
+
+  ESFP: (c) => `
+    <!-- ESFP: Entertainer — five-pointed star with glow rings -->
+    ${_glowDef('gESFP', c)}
+    <g filter="url(#gESFP)">
+      <circle cx="55" cy="62" r="46" fill="${c}" opacity=".07"/>
+      <circle cx="55" cy="62" r="36" fill="${c}" opacity=".1"/>
+      ${(()=>{
+        const pts=[];
+        for(let i=0;i<5;i++){
+          const ao=(i*72-90)*Math.PI/180, ai=((i*72+36)-90)*Math.PI/180;
+          pts.push(`${(55+38*Math.cos(ao)).toFixed(1)},${(62+38*Math.sin(ao)).toFixed(1)}`);
+          pts.push(`${(55+17*Math.cos(ai)).toFixed(1)},${(62+17*Math.sin(ai)).toFixed(1)}`);
+        }
+        return `<polygon points="${pts.join(' ')}" fill="${c}" opacity=".9"/>`;
+      })()}
+      <circle cx="55" cy="62" r="10" fill="white" opacity=".3"/>
+    </g>
+    <text x="55" y="125" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="13" fill="${c}" opacity=".9" letter-spacing="2">ESFP</text>`,
+};
+
+function getCharSvg(type, gender, colors) {
+  const c = MBTI_COLORS[type] || '#8888aa';
+  const draw = MBTI_SYMBOLS[type];
+  if (!draw) return `<text x="55" y="80" text-anchor="middle" font-size="40" fill="${c}">${type[0]}</text>`;
+  return draw(c);
+}
+
+// ── ① Personalized advice: myType → partnerType ──
+function getPersonalAdvice(my, partner) {
+  const myN=my.includes('N'), myF=my.includes('F'), myE=my.includes('E'), myJ=my.includes('J');
+  const myT=my.includes('T'), myP=my.includes('P'), myI=my.includes('I'), myS=my.includes('S');
+  const ptN=partner.includes('N'), ptF=partner.includes('F'), ptE=partner.includes('E'), ptJ=partner.includes('J');
+  const items = [];
+
+  // What you love doing together
+  items.push({icon:'💛', title:`あなた(${my})が好きな関わり方`,
+    detail: myN
+      ? `あなたは深いテーマの会話や未来の夢を語り合うことが大好き。${partner}の相手もそれを楽しんでくれるとき最高に幸せを感じます。`
+      : `あなたは今この瞬間の体験や具体的なことを大切にしています。五感を使ったデートや現実的な話し合いに喜びを感じます。`
+  });
+
+  // What partner finds hard about you
+  items.push({icon:'🌀', title:`相手(${partner})があなたに戸惑うこと`,
+    detail: myE && !ptE
+      ? `あなたの活発さや社交性に${partner}は時々圧倒されることがあります。「静かな時間が欲しい」は拒絶ではなくリチャージのサインです。`
+      : !myE && ptE
+      ? `あなたの内向きな部分に${partner}は「距離を置かれてる？」と感じることがあります。「一人でいたい」を言葉で伝えてあげましょう。`
+      : myF && !ptF
+      ? `感情的な表現が多いあなたに対して、論理派の${partner}は「どう反応すれば…」と戸惑うことがあります。`
+      : !myF && ptF
+      ? `論理的なあなたの返答が、感情型の${partner}には「冷たい」と映ることがあります。共感の一言を添えるだけで大きく変わります。`
+      : `J×Pの違いがあると、計画性の差がストレスになりやすいです。お互いの「好きな決め方」を早めに話し合っておきましょう。`
+  });
+
+  // Your strength in this pairing
+  items.push({icon:'⭐', title:`あなたがこのカップルで輝くポイント`,
+    detail: myF
+      ? `あなたの共感力と温かさがこの関係の感情的な接着剤になります。相手が落ち込んだとき、あなたの存在が一番の癒しになれます。`
+      : myT ? `あなたの論理的な思考がカップルの問題解決力を高めます。冷静に状況を整理できるあなたは、喧嘩の収束に貢献できます。`
+      : `あなたの直感力とビジョンがこの関係に刺激と方向性をもたらします。新しい可能性を提案するのはあなたの役割です。`
+  });
+
+  // Something to be careful about
+  items.push({icon:'⚠️', title:`あなたが気をつけたいクセ`,
+    detail: myJ
+      ? `計画や結論を急ぎすぎる傾向があります。${partner}が「まだ考えたい」と言っているときは、少し待つ余裕を持って。`
+      : myP
+      ? `優柔不断や先延ばしが相手をモヤモヤさせることがあります。小さなことでも「こうしたい」と意思表示する習慣をつけましょう。`
+      : myE
+      ? `話しすぎてしまうことがあります。相手の話を「聴く」時間を意識的に増やすと、関係の深さが変わります。`
+      : `自分の内面を表現するのが苦手なため、相手が「何を考えているか分からない」と感じることがあります。少しずつ言語化を。`
+  });
+
+  return items;
+}
+
+// ── ② Gifts the partner would love ──
+function getGifts(partner) {
+  const ptN=partner.includes('N'), ptF=partner.includes('F'), ptE=partner.includes('E'), ptJ=partner.includes('J'), ptS=partner.includes('S'), ptT=partner.includes('T');
+  const gifts = [];
+  if(ptN) gifts.push({icon:'📚', title:'こだわりの本・アート',detail:`${partner}は知的な刺激が大好き。お気に入りのジャンルの本、ユニークなアート作品、哲学的なテーマのものが心に刺さります。`});
+  if(ptS) gifts.push({icon:'🍱', title:'体験型・五感を使うもの',detail:`${partner}は「体験」を大切にします。一緒に行ける旅行券、こだわりの食体験、手触りの良い日用品など具体的なものが喜ばれます。`});
+  if(ptF) gifts.push({icon:'💌', title:'心のこもった手書きメッセージ',detail:`${partner}は気持ちを言葉にしてもらうことが最上のプレゼント。高価なものより「あなたのことを考えながら選んだ」一言が何より嬉しい。`});
+  if(ptT) gifts.push({icon:'🔧', title:'実用的・機能的なアイテム',detail:`${partner}は「実際に役立つ」ものを好みます。仕事効率化グッズ、趣味に使えるツール、長く使える品質の良いものが◎。`});
+  if(ptE) gifts.push({icon:'🎉', title:'一緒に楽しめる体験',detail:`${partner}は共有体験が嬉しい。2人でのイベントチケット、料理体験、アクティビティなど「一緒に楽しむ」系のプレゼントが響きます。`});
+  if(!ptE) gifts.push({icon:'🕯️', title:'プライベートを豊かにするもの',detail:`${partner}は一人の時間を大切にします。お気に入りのキャンドル、入浴剤セット、自分だけの読書グッズなど内省を豊かにするものが喜ばれます。`});
+  if(ptJ) gifts.push({icon:'🗓️', title:'計画や管理に役立つもの',detail:`${partner}は整理整頓と計画が好き。上質な手帳やプランナー、デスク整理グッズなど「生活をより良く管理できる」ものが実はツボです。`});
+  if(ptJ===false) gifts.push({icon:'🌈', title:'サプライズ・即興のプレゼント',detail:`${partner}はサプライズに弱い！前触れなしに「これ、あなたに似合うと思って」と渡す演出が最大の効果を発揮します。`});
+  return gifts.slice(0,4);
+}
+
+// ── ② NG acts ──
+function getNgActs(partner) {
+  const ptN=partner.includes('N'), ptF=partner.includes('F'), ptE=partner.includes('E'), ptJ=partner.includes('J');
+  const items = [];
+  if(ptF) items.push({icon:'🚫', title:'気持ちを否定・無視する',detail:`「そんなこと気にしすぎ」「論理的じゃない」は${partner}にとって最大の傷つき方。感情はまず「そうだね、そう感じるんだね」と受け取ってから。`});
+  if(!ptF) items.push({icon:'🚫', title:'感情だけで話し合おうとする',detail:`泣きながらや興奮した状態での話し合いを${partner}は苦手とします。「落ち着いてから話し合おう」が正解。感情より事実と解決策を優先して。`});
+  if(!ptE) items.push({icon:'🚫', title:'急に人の輪に引き込む',detail:`サプライズパーティーや大人数の場への強引な誘いは${partner}には負担。参加するかどうかを必ず本人に決めさせてあげて。`});
+  if(ptE) items.push({icon:'🚫', title:'長期間放っておく',detail:`${partner}は人との繋がりでエネルギーを得ます。長い沈黙や音信不通は「嫌われた？」という不安に直結。小さな連絡でも続けることが大切。`});
+  if(ptJ) items.push({icon:'🚫', title:'約束をドタキャン・変更する',detail:`${partner}は計画通りに動くことで安心感を得ます。急なキャンセルや変更は信頼を大きく傷つけます。変更が必要なら早めに、理由とともに伝えて。`});
+  if(!ptJ) items.push({icon:'🚫', title:'すべてを細かく管理しようとする',detail:`${partner}は自由に動くことで本領発揮します。「なんで計画しないの」「もっとちゃんとして」というプレッシャーは関係を息苦しくします。`});
+  if(ptN) items.push({icon:'🚫', title:'夢や理想を現実論で叩く',detail:`「そんなの無理」「現実的じゃない」という言葉は${partner}の心を一番萎えさせます。まず一緒に夢想して、現実的な話は後で。`});
+  return items.slice(0,4);
+}
+
+// ── ② Together tips ──
+function getTogetherTips(t1, t2) {
+  return [
+    {icon:'🤝', title:'違いを「個性」として尊重する',detail:`${t1}と${t2}の間にある違いは欠点ではなく、お互いが持っていない強みです。「なんでこの人はこうなんだろう」という疑問を「この人の面白いところだ」に言い換える練習をしましょう。`},
+    {icon:'💬', title:'定期的に「感謝」を言語化する',detail:`長く一緒にいると感謝を言わなくなりがちです。週に1回でも「ありがとう」を具体的に伝える習慣が関係の温度を保ちます。${t1}×${t2}はどちらも言葉にされると嬉しいタイプです。`},
+    {icon:'🛑', title:'喧嘩のルールを決めておく',detail:`「24時間以内に話し合う」「人格否定の言葉は使わない」「解決するまで引きずらない」など、2人のルールを喧嘩していないときに決めておきましょう。`},
+    {icon:'🌱', title:'それぞれの「個の時間」を守る',detail:`一緒にいる時間だけが関係の全てではありません。それぞれが自分の好きなことに没頭できる時間を尊重し合うことで、一緒にいる時間がより輝きます。`},
+  ];
+}
+
+// ── ③ Approach & relationship phases ──
+function getApproach(my, partner) {
+  const ptN=partner.includes('N'), ptF=partner.includes('F'), ptE=partner.includes('E'), ptJ=partner.includes('J');
+  return [
+    {icon:'✨', title:'まず「共通の世界観」を作る',detail: ptN
+      ? `${partner}は深い話や未来の夢を語り合える人に惹かれます。最初は世間話より「どんな人生を歩みたいか」「最近ハマっていること」などの深掘りトークを。`
+      : `${partner}は具体的・現実的な共通点に安心感を覚えます。趣味・好きな食べ物・日常のルーティンなど「今の自分」を共有することで距離が縮まります。`},
+    {icon:'🔑', title:`${partner}に刺さるアプローチ`,detail: ptF
+      ? `${partner}はまず「この人は私の気持ちを分かってくれる」という感覚を求めています。共感と聞き上手がベストアプローチ。自分語りより相手の話を引き出して。`
+      : `${partner}は誠実さと知性に惹かれます。曖昧な態度より「なぜあなたに興味を持ったか」を具体的に伝えることが有効です。`},
+    {icon:'⏳', title:'焦らずじっくり信頼を積む',detail: ptE
+      ? `${partner}は比較的早く打ち解けますが、深い信頼は行動の積み重ねでしか生まれません。楽しいことを一緒にする機会を増やして。`
+      : `${partner}は心を開くのにある程度時間が必要です。焦らず、毎回少しずつ「安心できる人」として印象を積み上げてください。`},
+    {icon:'💫', title:'告白のタイミングと方法',detail: ptJ
+      ? `${partner}は曖昧な関係を長く続けることが苦手です。ある程度信頼関係ができたら、はっきりと気持ちを伝えましょう。「どう思う？」より「付き合ってほしい」の直球が◎。`
+      : `${partner}は流れに身を任せるのが好きです。特別なシチュエーションより、普段の何気ない瞬間に「実は好きなんだけど」と伝える方が自然に響きます。`},
+  ];
+}
+
+function getShortTerm(t1, t2) {
+  return [
+    {icon:'🌟', title:'最初の3ヶ月：ハネムーン期を楽しむ',detail:`付き合い始めはお互いの良い面が全面に出る時期。この期間に「一緒にいると楽しい」という記憶をたくさん作ることが後の関係の基盤になります。週1回は必ず会う習慣を。`},
+    {icon:'🗣️', title:'小さな不満を溜め込まない練習',detail:`この時期から「言いにくいことを言える関係」を作り始めましょう。小さなモヤモヤを「実は〜が少し気になってて」と伝えてみることで、信頼の下地ができます。`},
+    {icon:'💑', title:`${t1}×${t2}の初期で気をつけること`,detail:`最初は特に「理想の相手」に見せようとしがちです。でも${t1}と${t2}の相性が活きるのは、お互いの素のままでいられるとき。少しずつ「完璧じゃない自分」を見せていきましょう。`},
+    {icon:'📞', title:'連絡スタイルをすり合わせる',detail:`「どのくらいの頻度で連絡したい？」「既読無視はOK？」など、早めにコミュニケーションのスタイルを話し合っておくと、後のすれ違いを大幅に減らせます。`},
+  ];
+}
+
+function getMidTerm(t1, t2) {
+  return [
+    {icon:'🏠', title:'「当たり前」になる前に感謝を',detail:`安定期に入ると相手の存在が当たり前になり始めます。この時期こそ意識的に「ありがとう」を伝えること。感謝は関係の湿度を保つ一番のメンテナンスです。`},
+    {icon:'🔄', title:'マンネリを防ぐ新体験の取り入れ方',detail:`${t1}×${t2}のカップルは新しい体験を一緒にすることで関係が刷新されます。旅行、料理教室、スポーツ体験など「初めてのこと」を年に数回入れましょう。`},
+    {icon:'🧩', title:'価値観のズレを受け入れる練習',detail:`この時期に「思ってたのと違う」が出てきます。これは正常な現象。${t1}と${t2}の違いを改めてMBTIの観点から読み直し、「そういうタイプなんだ」と腑に落とす作業を。`},
+    {icon:'🎯', title:'二人の「共通の目標」を作る',detail:`旅行の計画でも、資格取得でも、インテリアのリノベーションでも何でもOK。「ふたりで何かを成し遂げる」という体験が関係の連帯感を深めます。`},
+  ];
+}
+
+function getLongTerm(t1, t2) {
+  return [
+    {icon:'🌳', title:'変化を恐れず成長し合う関係に',detail:`長く一緒にいると人は変わります。「昔と違う」を悪いことと捉えず、「この人はこう成長したんだ」と更新し続ける視点が長続きの秘訣です。`},
+    {icon:'💎', title:'二人の歴史と文化を作る',detail:`「毎年この時期にここに行く」「困ったときはこれを食べる」という2人だけの儀式が積み重なることで、代替不可能な絆になります。${t1}×${t2}だけの文化を育てましょう。`},
+    {icon:'🌱', title:'個人の成長を応援し合う',detail:`長期的な関係では、お互いが個人として成長し続けることが重要です。相手の新しい挑戦を「応援する人」でいることが、関係の新鮮さを保ちます。`},
+    {icon:'🔮', title:'定期的に関係を棚卸しする',detail:`年に1〜2回、「今の関係をどう感じているか」「これからどうしていきたいか」を話し合う時間を作りましょう。問題が小さいうちに話せる仕組みを作ることが最大の長期戦略です。`},
+  ];
+}
+
+function getNightData(t1, t2) {
+  const f1=t1.includes('F'), f2=t2.includes('F');
+  const e1=t1.includes('E'), e2=t2.includes('E');
+  const j1=t1.includes('J'), j2=t2.includes('J');
+  const n1=t1.includes('N'), n2=t2.includes('N');
+  const score = getScore(t1, t2);
+
+  // 距離感スタイル（リード傾向）
+  const styleItems = [];
+  if(e1 !== e2) {
+    const lead = e1?t1:t2, follow = e1?t2:t1;
+    styleItems.push({icon:'🎯', title:`${lead}型：自然とリードする`, detail:`エネルギーが外に向かうため、雰囲気づくりや最初の一歩を踏み出すのが得意。一方で相手のペースを読むことも大切に。`});
+    styleItems.push({icon:'🌸', title:`${follow}型：受け止める力が強い`, detail:`相手の気持ちを敏感に察知し、安心感を生み出す。自分から発信するより、空気を整えるのが自然なスタイル。`});
+  } else {
+    styleItems.push({icon:'⚖️', title:`ふたりは対等なスタイル`, detail:`どちらもリード・フォローを状況に応じて使い分ける。その場の空気で自然と役割が決まるフレキシブルな関係性。`});
+    styleItems.push({icon:'🔄', title:`切り替えが上手いペア`, detail:`固定した役割がないため、マンネリになりにくい。ただし「どちらがリードする？」で迷うことも。事前の一言が鍵。`});
+  }
+
+  // 感情表現の熱量
+  const heatItems = [];
+  if(f1 && f2) {
+    heatItems.push({icon:'🌋', title:`感情の熱量がともに高い`, detail:`お互い感情表現が豊かで、気持ちが共鳴しやすい。喜びも愛情も全力で伝え合える一方、感情的になりすぎないバランス感覚も大切。`});
+    heatItems.push({icon:'💬', title:`言葉で愛を確認したいタイプ`, detail:`「好き」「大切にしてる」という言葉が二人にとって特に重要。言葉にすることで関係が深まる。沈黙より声で伝えて。`});
+  } else if(!f1 && !f2) {
+    heatItems.push({icon:'🧊', title:`クールで知的なエネルギー`, detail:`感情より行動で愛を示すタイプ同士。「察してほしい」より「一緒にいる時間」で信頼を積み上げていく。派手な表現より誠実さが武器。`});
+    heatItems.push({icon:'🤝', title:`信頼の上に成り立つ親密さ`, detail:`感情を大げさに表現しなくても、二人の間には揺るぎない安心感が生まれやすい。長期的に深まるタイプの関係。`});
+  } else {
+    const fType=f1?t1:t2, tType=f1?t2:t1;
+    heatItems.push({icon:'🎭', title:`熱量の差がスパイスになる`, detail:`${fType}の感情表現が${tType}を引き出し、${tType}の落ち着きが${fType}を安心させる。正反対の熱量がうまく噛み合うと最高のバランスに。`});
+    heatItems.push({icon:'💡', title:`${tType}へのヒント`, detail:`言葉や態度での表現が少なくても、行動で示せば十分伝わる。「一緒にいたい」という選択そのものが愛情表現になる。`});
+  }
+
+  // 親密さへのアプローチ
+  const approachItems = [];
+  if(n1 && n2) {
+    approachItems.push({icon:'🌌', title:`雰囲気とムードを大切にするタイプ`, detail:`日常の延長より、特別な瞬間・非日常の体験を共有することで親密さが深まる。サプライズや詩的な言葉が響きやすい。`});
+    approachItems.push({icon:'✍️', title:`言葉と意味に敏感`, detail:`言葉のチョイスや声のトーンに敏感。「なんとなく」より「なぜ好きか」を語れる相手に強く惹かれる傾向がある。`});
+  } else if(!n1 && !n2) {
+    approachItems.push({icon:'🏠', title:`安心できる空間が一番`, detail:`非日常より「いつものあなたと、いつもの場所で」という安心感が親密さを生む。ルーティンの中に愛情が宿るタイプ。`});
+    approachItems.push({icon:'🛁', title:`五感を大切にするアプローチ`, detail:`雰囲気より触感・温度・匂いなど具体的な感覚が重要。居心地のいい空間作りが二人の関係を豊かにする。`});
+  } else {
+    const nType=n1?t1:t2, sType=n1?t2:t1;
+    approachItems.push({icon:'🌉', title:`夢想家と現実主義のバランス`, detail:`${nType}が「特別な体験」を求め、${sType}が「安心できる日常」を大切にする。どちらの要素もあると二人の夜は豊かになる。`});
+    approachItems.push({icon:'🎁', title:`${sType}が喜ぶアプローチ`, detail:`抽象的な言葉より、具体的な行動（温かい飲み物を用意する、そっと近づくなど）が${sType}の心を開く鍵になる。`});
+  }
+
+  // 夜に贈る詩的なコメント
+  const poems = {
+    high: [
+      `あなたたちの夜は、星が最も近く見える時間。\n言葉より先に気持ちが伝わる、\nそんな深い共鳴を持つふたりです。`,
+      `互いの温度を知っているふたり。\n沈黙さえも愛おしく感じられる夜が、\nきっとたくさん待っている。`,
+    ],
+    mid: [
+      `違いがあるからこそ、引き寄せ合う。\nあなたたちの夜は、互いを発見する旅。\nゆっくりと、深く、確かめていこう。`,
+      `完璧じゃなくていい。\nただそこにいてくれるだけで、\n夜が少し温かくなるふたりです。`,
+    ],
+    low: [
+      `簡単にはわかり合えない、でもだからこそ。\n時間をかけて築く信頼の中に、\nふたりだけの夜が生まれていく。`,
+    ]
+  };
+  const poemArr = score>=80 ? poems.high : score>=65 ? poems.mid : poems.low;
+  const poem = poemArr[Math.floor(Math.abs(Math.sin(t1.charCodeAt(0)+t2.charCodeAt(0)))*poemArr.length)];
+
+  return { styleItems, heatItems, approachItems, poem };
+}
+
+function getConfessData(t1, t2, score) {
+  const f2=t2.includes('F'), e2=t2.includes('E');
+  const j2=t2.includes('J'), n2=t2.includes('N');
+  const f1=t1.includes('F');
+
+  // 脈アリ度（スコアベース + 相手タイプ補正）
+  let pulseScore = Math.min(95, Math.max(30, Math.round(score * 0.85 + (f2?8:0) + (e2?5:0))));
+
+  // 脈アリサイン（相手タイプ別）
+  let signals = [];
+  if(f2) {
+    signals = [
+      {icon:'💬', title:'よく話しかけてくる', body:`${t2}タイプは感情表現が豊か。あなたに話しかける頻度が増えているなら、意識している可能性が高い。`},
+      {icon:'👀', title:'目が合うと微笑む', body:`感情型の${t2}は好意を目や表情で無意識に表す。視線が合ったときの反応が柔らかくなっていたら脈アリサイン。`},
+      {icon:'📱', title:'LINEの返信が早い', body:`${t2}は感情に正直。気になる相手のメッセージは自然と優先してしまう傾向がある。`},
+    ];
+  } else {
+    signals = [
+      {icon:'🤝', title:'あなたの話をよく覚えている', body:`${t2}タイプは感情より観察で興味を示す。「そういえばあの時〜」と細かく覚えていたら意識している証拠。`},
+      {icon:'🛠', title:'さりげなく助けてくれる', body:`論理型の${t2}は言葉より行動で好意を表す。困ったとき自然と手を貸してくれるなら、あなたを気にかけている。`},
+      {icon:'💡', title:'二人だけの会話が増える', body:`${t2}は無駄な会話を好まない。それでもあなたと話す機会を作っているなら、特別に思っている可能性が高い。`},
+    ];
+  }
+
+  // 告白タイミング
+  let timing = [];
+  if(e2) {
+    timing = [
+      {icon:'🌆', title:'アクティブな活動の後', body:`${t2}はエネルギーが高い状態のとき感情が動きやすい。映画・イベント・ご飯の帰り道など、楽しい思い出の余韻がある瞬間がベスト。`},
+      {icon:'🌙', title:'二人で過ごした夜の終わり', body:`外向型の${t2}は「楽しかった」という感情の延長で気持ちを受け取りやすい。デートの終わり際が告白の黄金タイムゾーン。`},
+    ];
+  } else {
+    timing = [
+      {icon:'☕', title:'静かな二人の時間', body:`内向型の${t2}は静かな環境の方が気持ちを受け取りやすい。カフェや公園など、騒がしくない落ち着いた場所を選んで。`},
+      {icon:'📝', title:'LINEやメッセージで先に気持ちを伝える', body:`${t2}は突然の感情に戸惑いやすい。「話したいことがある」と事前に伝えておくと、心の準備ができて受け取りやすくなる。`},
+    ];
+  }
+
+  // LINEの送り方
+  const lineStyle = n2
+    ? {
+        title:`${t2}に響くLINEは「共通の世界観を広げる」メッセージ`,
+        tips: [
+          '「これ見て${t2}のこと思い出した」系のシェア（記事・音楽・映画）',
+          '将来の話や「もし〜だったら」という仮定の話題',
+          '長文より、続きが気になるような余白を残したメッセージ',
+        ],
+        ng: '既読スルー・スタンプだけの返信を繰り返す（距離が縮まらない）'
+      }
+    : {
+        title:`${t2}に響くLINEは「具体的な提案」メッセージ`,
+        tips: [
+          '「今度〇〇一緒に行かない？」と具体的な日時・場所を提案する',
+          '短くて明確なメッセージ（長文は読みにくいと感じやすい）',
+          '相手の興味・趣味に関連した話題をピンポイントで送る',
+        ],
+        ng: '「暇だよ〜」「話しかけてよ〜」などの受け身メッセージ（${t2}は受け取りにくい）'
+      };
+
+  // 告白シナリオ
+  const scenario = score >= 80
+    ? `相性スコアは${score}%。この組み合わせは自然と惹かれ合う力が強く、相手も少なからずあなたを意識している可能性が高い。\n\n告白は「ストレートに」が一番効く。「ずっと好きだった。付き合ってほしい」という真っ直ぐな言葉が${t2}タイプには最も刺さる。\n\n失敗しにくいシナリオ：二人でのお出かけ → 楽しい時間の終わり際 → 落ち着いた場所で → 一言告白。シンプルが最強。`
+    : score >= 65
+    ? `相性スコアは${score}%。この組み合わせは最初はゆっくり距離が縮まるタイプ。焦らず「信頼」を積み重ねることが告白成功のカギ。\n\nまずは「二人の時間」の実績を増やすことから。一緒にいる時間が自然に増えてきたタイミングで、「最近一緒にいると楽しい」という感情を素直に伝えるところから始めてみて。\n\n直接的な告白の前に「好きな人いる？」など探りを入れる会話があると成功率が上がる。`
+    : `相性スコアは${score}%。正反対な部分が多いペアだが、それが引力になることもある。\n\nこの組み合わせで大切なのは「自分らしさを見せ続けること」。${t2}タイプはあなたが持っていないものに興味を持っている可能性がある。無理に合わせようとせず、あなたの個性を全面に出した方が惹かれやすい。\n\n告白は「あなたのこういうところが好き」と具体的な理由を添えると${t2}に刺さりやすい。`;
+
+  return { pulseScore, signals, timing, lineStyle, scenario };
+}
+
+function renderConfessTab(t1, t2, score) {
+  const d = getConfessData(t1, t2, score);
+
+  // 脈アリ度
+  const signalsEl = document.getElementById('confessSignals');
+  if(signalsEl) {
+    signalsEl.innerHTML = `
+      <div class="confess-card">
+        <div class="confess-card-head">
+          <span class="confess-card-icon">💓</span>
+          <span class="confess-card-title">脈アリ度スコア</span>
+        </div>
+        <div class="confess-meter"><div class="confess-meter-fill" id="pulseMeter" style="width:0%"></div></div>
+        <div class="confess-meter-label">相性＋タイプ相性から算出</div>
+      </div>
+      ${d.signals.map(s=>`
+        <div class="confess-card">
+          <div class="confess-card-head">
+            <span class="confess-card-icon">${s.icon}</span>
+            <span class="confess-card-title">${s.title}</span>
+          </div>
+          <div class="confess-card-body">${s.body}</div>
+        </div>`).join('')}`;
+    setTimeout(()=>{
+      const m=document.getElementById('pulseMeter');
+      if(m) m.style.width=d.pulseScore+'%';
+    }, 400);
+  }
+
+  // タイミング
+  const timingEl = document.getElementById('confessTiming');
+  if(timingEl) {
+    timingEl.innerHTML = d.timing.map(t=>`
+      <div class="confess-card">
+        <div class="confess-card-head">
+          <span class="confess-card-icon">${t.icon}</span>
+          <span class="confess-card-title">${t.title}</span>
+        </div>
+        <div class="confess-card-body">${t.body}</div>
+      </div>`).join('');
+  }
+
+  // LINE
+  const lineEl = document.getElementById('confessLine');
+  if(lineEl) {
+    lineEl.innerHTML = `
+      <div class="confess-card">
+        <div class="confess-card-head">
+          <span class="confess-card-icon">✉️</span>
+          <span class="confess-card-title">${d.lineStyle.title}</span>
+        </div>
+        <div class="confess-card-body">
+          ${d.lineStyle.tips.map(t=>`<div style="padding:4px 0;padding-left:12px;border-left:2px solid rgba(224,185,106,.3);margin-bottom:6px">▷ ${t}</div>`).join('')}
+          <div style="margin-top:10px;font-size:12px;color:var(--muted)">❌ NG：${d.lineStyle.ng}</div>
+        </div>
+      </div>`;
+  }
+
+  // シナリオ
+  const scriptEl = document.getElementById('confessScript');
+  if(scriptEl) {
+    scriptEl.innerHTML = `
+      <div class="confess-card">
+        <div class="confess-card-body" style="white-space:pre-line">${d.scenario}</div>
+      </div>`;
+  }
+}
+
+function getFightPatterns(t1, t2) {
+  const f1=t1.includes('F'), f2=t2.includes('F');
+  const e1=t1.includes('E'), e2=t2.includes('E');
+  const j1=t1.includes('J'), j2=t2.includes('J');
+  const n1=t1.includes('N'), n2=t2.includes('N');
+  const patterns = [];
+
+  // F×T の対立
+  if(f1 !== f2) {
+    const fType=f1?t1:t2, tType=f1?t2:t1;
+    patterns.push({
+      trigger:'💬',
+      scene:'意見の食い違いで感情的になるとき',
+      pattern:`${fType}は「気持ちをわかってほしい」と感情で訴えるのに対し、${tType}は「論理的に解決しよう」と事実で返す。すれ違いが起きやすく、${fType}は「冷たい」、${tType}は「重い」と感じがち。`,
+      makeup:`${fType}は最初に「共感してほしいだけ」と一言伝える。${tType}はまず「そうだったんだね」と受け止めてから意見を言うと劇的に変わる。解決より寄り添いを先にするのがコツ。`
+    });
+  }
+
+  // J×P の対立
+  if(j1 !== j2) {
+    const jType=j1?t1:t2, pType=j1?t2:t1;
+    patterns.push({
+      trigger:'📅',
+      scene:'計画・自由時間の使い方でぶつかるとき',
+      pattern:`${jType}は予定を先に決めたい、${pType}はその場の気分で動きたい。旅行・休日の過ごし方・デートプランで繰り返し衝突する。${jType}は「いい加減」、${pType}は「縛られる」と感じる。`,
+      makeup:`週の大きな予定だけ${jType}が決めて、細部は${pType}に任せる「大枠だけ決めルール」が効果的。${pType}は大事な日だけでも事前に確認する習慣をつけると◎。`
+    });
+  }
+
+  // E×I の対立
+  if(e1 !== e2) {
+    const eType=e1?t1:t2, iType=e1?t2:t1;
+    patterns.push({
+      trigger:'🏠',
+      scene:'休日の過ごし方・エネルギーの使い方',
+      pattern:`${eType}は外出・人と会うことで充電するが、${iType}は一人の時間がないと疲弊する。「出かけたい vs 家にいたい」の衝突が週末のたびに起きやすい。`,
+      makeup:`月に1回は${eType}に合わせた外出デー、1回は${iType}が好きなおうちデーを交互に設定する。どちらかが我慢し続ける構造をなくすのがポイント。`
+    });
+  }
+
+  // N×S の対立
+  if(n1 !== n2) {
+    const nType=n1?t1:t2, sType=n1?t2:t1;
+    patterns.push({
+      trigger:'💭',
+      scene:'将来の話・今ここの話でかみ合わないとき',
+      pattern:`${nType}は「将来どうなりたいか」の話が好きだが、${sType}は「今何をするか」が大事。${nType}の抽象的な話に${sType}がついていけず、${sType}の現実的な話に${nType}が窮屈さを感じる。`,
+      makeup:`${nType}は「夢の話」と断ってから語る。${sType}は「それで具体的にどうするの？」と聞く前に、まずアイデア自体を楽しむ時間を作る。`
+    });
+  }
+
+  // 同タイプ同士の対立
+  if(t1 === t2) {
+    patterns.push({
+      trigger:'🪞',
+      scene:'同じ弱点が重なって泥沼になるとき',
+      pattern:`同じタイプ同士は価値観が近い分、お互いの弱点がぶつかったとき逃げ場がない。例えば両方がJ型なら意地の張り合い、両方P型なら問題を先送りにし続けるなど。`,
+      makeup:`「自分が相手に感じるイライラは、自分の中にもある部分」と気づくと楽になる。お互いが同じ課題を持つと認めた上で、どちらが歩み寄るか決めると解決が早い。`
+    });
+  }
+
+  // 汎用パターン（最低3つ保証）
+  if(patterns.length < 3) {
+    patterns.push({
+      trigger:'😶',
+      scene:'沈黙・距離感が生まれるとき',
+      pattern:`どちらかが不満を溜めて黙り込む時期が来ると、もう一方がその変化に気づかず、気づいたときには溝が深くなっている。特に長期的な関係で起きやすいパターン。`,
+      makeup:`「最近どうかな」と週1回だけ確認する時間を作る。LINEでも構わない。小さな異変を早めにキャッチする習慣が最大の予防になる。`
+    });
+  }
+
+  return patterns.slice(0, 4);
+}
+
+function renderFightGrid(id, items) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.innerHTML = items.map((item, i) => `
+    <div class="fight-card" id="fc${i}">
+      <div class="fight-card-header" onclick="toggleFight('fc${i}')">
+        <span class="fight-card-trigger">${item.trigger}</span>
+        <span class="fight-card-scene">${item.scene}</span>
+        <span class="fight-card-arrow">▼</span>
+      </div>
+      <div class="fight-card-body">
+        <div class="fight-label">よくある喧嘩パターン</div>
+        <div class="fight-pattern">${item.pattern}</div>
+        <div class="fight-label">💚 仲直りのコツ</div>
+        <div class="makeup-tip">${item.makeup}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleFight(id) {
+  const el = document.getElementById(id);
+  if(el) el.classList.toggle('open');
+}
+
+function diagnose(){
+  const t1=state.p1.join(''),t2=state.p2.join('');
+  currentNames.n1=document.getElementById('name1').value||'あなた';
+  currentNames.n2=document.getElementById('name2').value||'相手';
+  const score=getScore(t1,t2);
+  const[title,subtitle]=getTitle(score);
+
+  document.getElementById('formSection').style.display='none';
+  document.getElementById('result').classList.add('show');
+  document.getElementById('rType1').textContent=t1;
+  document.getElementById('rType2').textContent=t2;
+  document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultSubtitle').textContent=subtitle;
+  // ♡の色をスコアに応じて変化
+  const heartEl = document.getElementById('coupleHeart');
+  if(heartEl){
+    let heartColor, heartGlow;
+    if(score>=90){heartColor='#ff6eb4';heartGlow='0 0 16px rgba(255,110,180,.8), 0 0 32px rgba(255,110,180,.4)';}
+    else if(score>=80){heartColor='#f5a8bc';heartGlow='0 0 12px rgba(245,168,188,.7)';}
+    else if(score>=70){heartColor='#e0b96a';heartGlow='0 0 10px rgba(224,185,106,.6)';}
+    else if(score>=60){heartColor='#b8b4e8';heartGlow='0 0 8px rgba(184,180,232,.5)';}
+    else{heartColor='rgba(255,255,255,.3)';heartGlow='none';}
+    heartEl.style.color=heartColor;
+    heartEl.style.textShadow=heartGlow;
+  }
+  const rc = getRankComment(score);
+  const rcEl = document.getElementById('rankComment');
+  if(rcEl) rcEl.textContent = rc.text;
+  const srcEl = document.getElementById('shareRankComment');
+  if(srcEl) srcEl.textContent = rc.text;
+  document.getElementById('compatReason').textContent=getReason(t1,t2,score);
+  document.getElementById('shareType1').textContent=t1;
+  document.getElementById('shareType2').textContent=t2;
+  document.getElementById('shareName1').textContent=currentNames.n1;
+  document.getElementById('shareName2').textContent=currentNames.n2;
+  document.getElementById('shareScore').textContent=`${score}%`;
+  document.getElementById('shareTitle2').textContent=title;
+  // シェアカード円グラフアニメーション
+  setTimeout(()=>{
+    const ring=document.getElementById('shareRingFill');
+    if(ring){const circ=389.6;ring.style.strokeDashoffset=circ-(score/100)*circ;}
+  },400);
+  document.getElementById('chatSubtitle').textContent=`${t1} × ${t2} の相性を踏まえてアドバイス`;
+
+  // score top3 pills
+  const top3 = getScoreTop3(t1, t2, score);
+  const top3El = document.getElementById('scoreTop3');
+  if(top3El) top3El.innerHTML = top3.map(p =>
+    `<div class="s3-pill ${p.type}"><span class="s3-icon">${p.icon}</span>${p.text}</div>`
+  ).join('');
+
+  setTimeout(()=>{
+    const circ=2*Math.PI*62;
+    document.getElementById('scoreFill').style.strokeDashoffset=circ-(score/100)*circ;
+    let cur=0;const iv=setInterval(()=>{cur+=Math.ceil(score/40);if(cur>=score){cur=score;clearInterval(iv);}document.getElementById('scoreNum').textContent=cur;},30);
+  },300);
+
+  // ペア専用データがあれば優先使用、なければ汎用
+  const pd = getPairData(t1, t2);
+  renderExpandGrid('traitsGrid', pd ? pd.traits : getTraits(t1,t2));
+  renderExpandGrid('conflictGrid', pd ? pd.conflicts : getConflicts(t1,t2));
+  renderExpandGrid('tipsGrid', getTips(t1,t2));
+
+  // モードによってタブ表示を切り替え
+  const nightBtn = document.getElementById('tabNightBtn');
+  const confessBtn = document.getElementById('tabConfessBtn');
+  if(appMode === 'crush'){
+    if(nightBtn) nightBtn.style.display = 'none';
+    if(confessBtn) confessBtn.style.display = '';
+    // 喧嘩タブのラベルを変更
+    document.querySelectorAll('.tab-btn').forEach(b=>{
+      if(b.textContent.includes('喧嘩')) b.style.display='none';
+    });
+    renderConfessTab(t1, t2, score);
+  } else {
+    if(nightBtn) nightBtn.style.display = '';
+    if(confessBtn) confessBtn.style.display = 'none';
+    document.querySelectorAll('.tab-btn').forEach(b=>{
+      if(b.textContent.includes('喧嘩')) b.style.display='';
+    });
+  }
+
+  // シェアセクションのタイトル
+  const shareSectionTitle = document.getElementById('shareSectionTitle');
+  if(shareSectionTitle){
+    shareSectionTitle.textContent = appMode==='crush'
+      ? '✦ この相性をシェアして相談しよう ✦'
+      : '✦ シェアして友だちに自慢しよう ✦';
+  }
+
+  // 喧嘩＆仲直りタブ
+  renderFightGrid('fightGrid', getFightPatterns(t1, t2));
+
+  // 攻略ガイドタブ
+  const advEl = document.getElementById('advMyType');
+  if(advEl) advEl.textContent = t1;
+  renderExpandGrid('adviceGrid', getPersonalAdvice(t1, t2));
+  renderExpandGrid('giftsGrid', getGifts(t2));
+  renderExpandGrid('ngGrid', getNgActs(t2));
+  renderExpandGrid('togetherGrid', getTogetherTips(t1, t2));
+
+  // デートタブ
+  const dd=getDateData(t1,t2);
+  renderExpandGrid('dateSpots',dd.spots.map(d=>({icon:d.i,title:d.n,detail:d.d})));
+  renderExpandGrid('dateActivities',dd.acts.map(d=>({icon:d.i,title:d.n,detail:d.d})));
+  const dtEl=document.getElementById('dateTimes');
+  if(dtEl) dtEl.innerHTML=dd.times.map(t=>`<li>${t}</li>`).join('');
+
+  // 関係の育て方タブ
+  const pd2 = getPairData(t1, t2);
+  const pairApproach = pd2 ? pd2.approach : getApproach(t1, t2);
+  renderExpandGrid('approachGrid', pairApproach);
+  renderExpandGrid('shortGrid', getShortTerm(t1, t2));
+  renderExpandGrid('midGrid', getMidTerm(t1, t2));
+  renderExpandGrid('longGrid', getLongTerm(t1, t2));
+
+  // 夜の相性タブ
+  const nd = getNightData(t1, t2);
+  renderExpandGrid('nightStyleGrid', nd.styleItems);
+  renderExpandGrid('nightHeatGrid', nd.heatItems);
+  renderExpandGrid('nightApproachGrid', nd.approachItems);
+  const poemEl = document.getElementById('nightPoem');
+  if(poemEl) poemEl.innerHTML = nd.poem.replace(/\n/g, '<br>');
+
+
+  const c1=getCharColors(t1),c2=getCharColors(t2);
+  document.getElementById('charSvg1').innerHTML=getCharSvg(t1,genders.p1,c1);
+  document.getElementById('charSvg2').innerHTML=getCharSvg(t2,genders.p2,c2);
+
+  if (AI_AVAILABLE) initChat(t1,t2,score,title);
+  else {
+    // AI未使用時もチャットタブのsubtitleだけ更新
+    const sub = document.getElementById('chatSubtitle');
+    if (sub) sub.textContent = `${t1} × ${t2} の相性を踏まえてアドバイス`;
+  }
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
+}
+
+function initChat(t1,t2,score,title){
+  chatHistory=[];
+  document.getElementById('chatMessages').innerHTML='';
+  addMessage('ai',`こんにちは！${currentNames.n1}さん（${t1}）と${currentNames.n2}さん（${t2}）の星読みカウンセラーです🌙\n\n2人の相性は **${score}%「${title}」**。${t1}と${t2}の特性を踏まえて恋愛のお悩みに答えます。何でも気軽に相談してください！`);
+  const qs=['喧嘩したあとの仲直り方は？','相手が冷たく感じるとき…','デートプランの決め方のコツ','気持ちをうまく伝えるには？',`${t2}のパートナーをもっと理解したい`];
+  const qc=document.getElementById('quickQs');
+  qc.innerHTML='<span class="quick-q-label">よくある相談</span>';
+  qs.forEach(q=>{const btn=document.createElement('button');btn.className='quick-btn';btn.textContent=q;btn.onclick=()=>{document.getElementById('chatInput').value=q;sendMessage();};qc.appendChild(btn);});
+}
+function addMessage(role,text){
+  const msgs=document.getElementById('chatMessages');
+  const div=document.createElement('div');div.className=`msg ${role}`;
+  const avatar=role==='ai'?'🌙':'👤';
+  const formatted=text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  div.innerHTML=`<div class="msg-avatar">${avatar}</div><div class="msg-bubble">${formatted}</div>`;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+function showTyping(){
+  const msgs=document.getElementById('chatMessages');
+  const div=document.createElement('div');div.className='msg ai';div.id='typingIndicator';
+  div.innerHTML=`<div class="msg-avatar">🌙</div><div class="typing-dots"><span></span><span></span><span></span></div>`;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+function removeTyping(){const el=document.getElementById('typingIndicator');if(el)el.remove();}
+
+async function sendMessage(){
+  if (!AI_AVAILABLE) return;
+  const input=document.getElementById('chatInput');
+  const text=input.value.trim();
+  if(!text||isTyping)return;
+  input.value='';input.style.height='44px';
+  addMessage('user',text);
+  chatHistory.push({role:'user',content:text});
+  isTyping=true;document.getElementById('sendBtn').disabled=true;
+  showTyping();
+  const t1=state.p1.join(''),t2=state.p2.join('');
+  const score=getScore(t1,t2);const[title]=getTitle(score);
+  const systemPrompt=`あなたは恋愛・パートナーシップ専門のAIカウンセラー「星読みカウンセラー」です。
+相談者情報：
+- ${currentNames.n1}（${t1}）と${currentNames.n2}（${t2}）のカップル
+- 相性スコア：${score}%（${title}）
+MBTIの組み合わせ特性を活かし、日本語で温かく具体的にアドバイスしてください。200〜300文字程度。`;
+  try{
+    const response=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:systemPrompt,messages:chatHistory})});
+    const data=await response.json();
+    const reply=data.content?.[0]?.text||'うまく受信できませんでした。';
+    removeTyping();addMessage('ai',reply);
+    chatHistory.push({role:'assistant',content:reply});
+  }catch(e){removeTyping();addMessage('ai','通信エラーが発生しました。もう一度お試しください。');}
+  isTyping=false;document.getElementById('sendBtn').disabled=false;
+}
+
+// ── Canvas シェア画像生成
+async function generateShareImage() {
+  const btn = document.getElementById('shareImgBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ 生成中…'; }
+
+  try {
+    const canvas = document.createElement('canvas');
+    const W = 1080, H = 1920;
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    const t1 = state.p1.join(''), t2 = state.p2.join('');
+    const score = getScore(t1, t2);
+    const [title] = getTitle(score);
+    const n1 = currentNames.n1, n2 = currentNames.n2;
+    const c1 = MBTI_COLORS[t1] || '#9b80c8';
+    const c2 = MBTI_COLORS[t2] || '#8090d8';
+    const rc = getRankComment(score);
+
+    // ── 背景
+    const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+    bgGrad.addColorStop(0,   '#17152a');
+    bgGrad.addColorStop(0.4, '#1c1535');
+    bgGrad.addColorStop(1,   '#111026');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // ── 星
+    const rng = s => { const x = Math.sin(s) * 10000; return x - Math.floor(x); };
+    for (let i = 0; i < 300; i++) {
+      const x = rng(i * 7.3) * W;
+      const y = rng(i * 13.7) * H;
+      const r = rng(i * 3.1) * 2.5 + 0.3;
+      ctx.globalAlpha = rng(i * 5.9) * 0.5 + 0.08;
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // ── 上部グロー
+    const glow = ctx.createRadialGradient(W/2, H*0.35, 0, W/2, H*0.35, W * 0.7);
+    glow.addColorStop(0, 'rgba(120,80,200,0.22)');
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+
+    // ── 外枠
+    ctx.save();
+    ctx.strokeStyle = 'rgba(224,185,106,0.45)';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    canvasRoundRect(ctx, 44, 44, W - 88, H - 88, 60);
+    ctx.stroke();
+    ctx.restore();
+
+    // ── 内枠（細い）
+    ctx.save();
+    ctx.strokeStyle = 'rgba(224,185,106,0.15)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    canvasRoundRect(ctx, 64, 64, W - 128, H - 128, 50);
+    ctx.stroke();
+    ctx.restore();
+
+    // ── ヘッダー eyebrow
+    ctx.save();
+    ctx.fillStyle = 'rgba(224,185,106,0.65)';
+    ctx.font = '32px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('✦  ふたりの星座  ✦', W/2, 180);
+    ctx.restore();
+
+    // ── タイプバッジ
+    canvasDrawBadge(ctx, W/2 - 310, 220, t1, c1, 260, 100);
+    // ♡
+    let heartColor = score>=90?'#ff6eb4':score>=80?'#f5a8bc':score>=70?'#e0b96a':'rgba(255,255,255,.4)';
+    ctx.save();
+    ctx.fillStyle = heartColor;
+    ctx.shadowColor = heartColor;
+    ctx.shadowBlur = 30;
+    ctx.font = '80px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('♡', W/2, 270);
+    ctx.textBaseline = 'alphabetic';
+    ctx.restore();
+    canvasDrawBadge(ctx, W/2 + 50, 220, t2, c2, 260, 100);
+
+    // ── 名前
+    ctx.save();
+    ctx.font = '300 42px sans-serif';
+    ctx.fillStyle = 'rgba(220,210,250,0.6)';
+    ctx.textAlign = 'center';
+    ctx.fillText(n1, W/2 - 180, 360);
+    ctx.fillText(n2, W/2 + 180, 360);
+    ctx.restore();
+
+    // ── キャラクター（SVGをCanvasに描画）
+    const charY = 380;
+    const charH = 420;
+    await canvasDrawChar(ctx, t1, genders.p1, c1, W/2 - 320, charY, 260, charH);
+    await canvasDrawChar(ctx, t2, genders.p2, c2, W/2 + 60,  charY, 260, charH);
+
+    // キャラ間 ♡
+    ctx.save();
+    ctx.fillStyle = heartColor;
+    ctx.shadowColor = heartColor;
+    ctx.shadowBlur = 24;
+    ctx.font = '60px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('♡', W/2, charY + charH/2);
+    ctx.textBaseline = 'alphabetic';
+    ctx.restore();
+
+    // ── 区切り線
+    const sepY = 840;
+    ctx.save();
+    const sepGrad = ctx.createLinearGradient(120, sepY, W-120, sepY);
+    sepGrad.addColorStop(0, 'transparent');
+    sepGrad.addColorStop(0.5, 'rgba(224,185,106,0.4)');
+    sepGrad.addColorStop(1, 'transparent');
+    ctx.strokeStyle = sepGrad;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(120, sepY); ctx.lineTo(W-120, sepY);
+    ctx.stroke();
+    ctx.restore();
+
+    // ── スコア円グラフ
+    const cx = W/2, cy = 1050, arcR = 220;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 22;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(cx, cy, arcR, -Math.PI/2, Math.PI * 1.5);
+    ctx.stroke();
+    const arcGrad = ctx.createLinearGradient(cx-arcR, cy, cx+arcR, cy);
+    arcGrad.addColorStop(0, '#e0b96a');
+    arcGrad.addColorStop(1, '#f5a8bc');
+    ctx.strokeStyle = arcGrad;
+    ctx.lineWidth = 22;
+    ctx.beginPath();
+    ctx.arc(cx, cy, arcR, -Math.PI/2, -Math.PI/2 + Math.PI*2*(score/100));
+    ctx.stroke();
+    ctx.restore();
+
+    // スコア数字
+    ctx.save();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '700 180px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(score + '%', cx, cy - 28);
+    ctx.restore();
+
+    // 相性ラベル
+    ctx.save();
+    ctx.fillStyle = 'rgba(224,185,106,0.6)';
+    ctx.font = '36px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('相性スコア', cx, cy + 120);
+    ctx.restore();
+
+    // ── タイトル
+    ctx.save();
+    ctx.fillStyle = '#f5dc90';
+    ctx.font = 'italic 300 68px serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(title, cx, 1340);
+    ctx.restore();
+
+    // ── ランキング pill
+    const rankText = rc.text;
+    const pillH2 = 72, pillW2 = 700, pillX = (W - pillW2)/2, pillY2 = 1380;
+    ctx.save();
+    ctx.fillStyle = 'rgba(224,185,106,0.12)';
+    ctx.strokeStyle = 'rgba(224,185,106,0.4)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    canvasRoundRect(ctx, pillX, pillY2, pillW2, pillH2, pillH2/2);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#e0c97a';
+    ctx.font = '34px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(rankText, W/2, pillY2 + pillH2/2);
+    ctx.textBaseline = 'alphabetic';
+    ctx.restore();
+
+    // ── 区切り線2
+    const sep2Y = 1490;
+    ctx.save();
+    const seg2Grad = ctx.createLinearGradient(120, sep2Y, W-120, sep2Y);
+    seg2Grad.addColorStop(0, 'transparent');
+    seg2Grad.addColorStop(0.5, 'rgba(224,185,106,0.3)');
+    seg2Grad.addColorStop(1, 'transparent');
+    ctx.strokeStyle = seg2Grad;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(120, sep2Y); ctx.lineTo(W-120, sep2Y);
+    ctx.stroke();
+    ctx.restore();
+
+    // ── フッター
+    ctx.save();
+    ctx.fillStyle = 'rgba(160,148,200,0.45)';
+    ctx.font = '32px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('couple-mbti-seven.vercel.app', W/2, 1560);
+    ctx.restore();
+
+    // ── QRコード代わりの装飾テキスト
+    ctx.save();
+    ctx.fillStyle = 'rgba(224,185,106,0.25)';
+    ctx.font = '26px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('あなたのペアも診断してみよう', W/2, 1620);
+    ctx.restore();
+
+    // ── 共有 or ダウンロード
+    const fileName = `futari_${t1}_${t2}_${score}.png`;
+    const dataUrl = canvas.toDataURL('image/png');
+
+    // Base64 → Blob変換
+    const byteStr = atob(dataUrl.split(',')[1]);
+    const arr = new Uint8Array(byteStr.length);
+    for(let i=0;i<byteStr.length;i++) arr[i]=byteStr.charCodeAt(i);
+    const blob = new Blob([arr], {type:'image/png'});
+    const file = new File([blob], fileName, {type:'image/png'});
+
+    // Web Share API（スマホで共有シートを開く）
+    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: 'ふたりの星座 — カップル相性診断',
+          text: `${currentNames.n1} × ${currentNames.n2} の相性は${score}%！`
+        });
+      } catch(shareErr) {
+        // キャンセルされた場合は何もしない
+        if(shareErr.name !== 'AbortError') {
+          // フォールバック：ダウンロード
+          const link = document.createElement('a');
+          link.download = fileName;
+          link.href = dataUrl;
+          link.click();
+        }
+      }
+    } else {
+      // Web Share API非対応（PC等）→ 従来のダウンロード
+      const link = document.createElement('a');
+      link.download = fileName;
+      link.href = dataUrl;
+      link.click();
+    }
+
+  } catch(e) {
+    console.error('Share image error:', e);
+    alert('画像生成中にエラーが発生しました: ' + e.message);
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = '📤 シェア / 保存'; }
+}
+
+// Canvas上にキャラクターSVGを描画するヘルパー
+async function canvasDrawChar(ctx, type, gender, color, x, y, w, h) {
+  return new Promise((resolve) => {
+    try {
+      const colors = getCharColors(type);
+      const svgStr = getCharSvg(type, gender, colors);
+      const blob = new Blob([svgStr], {type: 'image/svg+xml;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        ctx.drawImage(img, x, y, w, h);
+        URL.revokeObjectURL(url);
+        resolve();
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(); };
+      img.src = url;
+    } catch(e) { resolve(); }
+  });
+}
+
+// Canvas用ユーティリティ（ctx.roundRectが使えない環境対応）
+function canvasRoundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function canvasDrawBadge(ctx, x, y, label, color, w, h) {
+  ctx.save();
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 28;
+  ctx.fillStyle = color + '28';
+  ctx.strokeStyle = color + 'bb';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  canvasRoundRect(ctx, x, y, w, h, h / 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '700 38px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(label, x + w / 2, y + h / 2 + 14);
+  ctx.restore();
+}
+
+function reset() {
+  document.getElementById('formSection').style.display='block';
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('scoreFill').style.strokeDashoffset=389.6;
+  document.getElementById('scoreNum').textContent='0';
+  chatHistory=[];
+  const heartEl=document.getElementById('coupleHeart');
+  if(heartEl){heartEl.style.color='';heartEl.style.textShadow='';}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
